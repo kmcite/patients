@@ -1,0 +1,158 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:4852917807247370858",
+      "lastPropertyId": "3:5901116078796495656",
+      "name": "Duty",
+      "properties": [
+        {
+          "id": "1:4380430277146813803",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7735798921161325028",
+          "name": "shift",
+          "type": 6
+        },
+        {
+          "id": "3:5901116078796495656",
+          "name": "day",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "2:4159013604071220306",
+      "lastPropertyId": "12:4225333234815189415",
+      "name": "Patient",
+      "properties": [
+        {
+          "id": "1:5870955556876021401",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4558555341828619012",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:4571514581896309093",
+          "name": "timeOfPresentation",
+          "type": 10
+        },
+        {
+          "id": "4:9012675389637349692",
+          "name": "patientTypeId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "1:7708117350394255182",
+          "relationTarget": "PatientType"
+        },
+        {
+          "id": "5:8459920102475821432",
+          "name": "complaints",
+          "type": 9
+        },
+        {
+          "id": "6:2787389489162236316",
+          "name": "examination",
+          "type": 9
+        },
+        {
+          "id": "7:1410148993886046502",
+          "name": "management",
+          "type": 9
+        },
+        {
+          "id": "8:4160640108529597958",
+          "name": "diagnosis",
+          "type": 9
+        },
+        {
+          "id": "9:5582288762903526921",
+          "name": "other",
+          "type": 9
+        },
+        {
+          "id": "10:5802970658235038355",
+          "name": "attended",
+          "type": 1
+        },
+        {
+          "id": "11:1435697079980743643",
+          "name": "editing",
+          "type": 1
+        },
+        {
+          "id": "12:4225333234815189415",
+          "name": "age",
+          "type": 8
+        }
+      ],
+      "relations": [
+        {
+          "id": "1:664341722264876839",
+          "name": "pictures",
+          "targetId": "4:3618212813481240617"
+        }
+      ]
+    },
+    {
+      "id": "3:2547301185917168288",
+      "lastPropertyId": "2:3231231614687725535",
+      "name": "PatientType",
+      "properties": [
+        {
+          "id": "1:8590536655539908999",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3231231614687725535",
+          "name": "type",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:3618212813481240617",
+      "lastPropertyId": "2:379551613868479842",
+      "name": "Picture",
+      "properties": [
+        {
+          "id": "1:57833821240850908",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:379551613868479842",
+          "name": "path",
+          "type": 9
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "4:3618212813481240617",
+  "lastIndexId": "1:7708117350394255182",
+  "lastRelationId": "1:664341722264876839",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
