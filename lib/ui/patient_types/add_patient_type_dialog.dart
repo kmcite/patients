@@ -1,48 +1,80 @@
-import 'package:patients/domain/api/patient_types_repository.dart';
+import 'package:forui/forui.dart';
+import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient_types.dart';
 import 'package:patients/main.dart';
 import 'package:patients/domain/api/navigator.dart';
 
-final _patientTypeField = RM.injectTextEditing();
-mixin AddPatientTypeBloc {
-  String get text => _patientTypeField.text;
-  TextEditingController get controller => _patientTypeField.controller;
-  void put(PatientType type) {
-    patientTypesRepository.put(type);
+final _addPatientType = _AddPatientType();
+
+/// BLOC
+class _AddPatientType extends Bloc<AddTypeEvent, String> {
+  _AddPatientType() {
+    on<ChangeTypeNameEvent>(
+      (event) => emit(event.name),
+    );
+    on<GoBackEvent>(
+      (event) {
+        emit(initialState);
+        navigator.back();
+      },
+    );
+    on<SaveTypeEvent>(
+      (event) {
+        patientTypesRepository(event.type);
+        navigator.back();
+      },
+    );
   }
+
+  @override
+  String get initialState => '';
 }
 
-class AddPatientTypeDialog extends UI with AddPatientTypeBloc {
+/// EVENTS
+class AddTypeEvent {
+  const AddTypeEvent();
+}
+
+class ChangeTypeNameEvent extends AddTypeEvent {
+  final String name;
+  const ChangeTypeNameEvent(this.name);
+}
+
+class GoBackEvent extends AddTypeEvent {
+  const GoBackEvent();
+}
+
+class SaveTypeEvent extends AddTypeEvent {
+  final PatientType type;
+  const SaveTypeEvent(this.type);
+}
+
+/// UI
+class AddPatientTypeDialog extends UI {
   const AddPatientTypeDialog({super.key});
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Type Name'),
-          TextFormField(
-            controller: controller,
-          ).pad(),
-          Row(
-            children: [
-              FilledButton(
-                onPressed: () {
-                  put(PatientType()..type = text);
-                  navigator.back();
-                },
-                child: 'save'.text(),
-              ).pad(),
-              FilledButton(
-                onPressed: () {
-                  navigator.back();
-                },
-                child: 'cancel'.text(),
-              ).pad(),
-            ],
+    return FDialog(
+      direction: Axis.horizontal,
+      actions: [
+        FButton(
+          onPress: () => _addPatientType(
+            SaveTypeEvent(
+              PatientType()..type = _addPatientType(),
+            ),
           ),
-        ],
-      ).pad(),
+          label: 'save'.text(),
+        ),
+        FButton(
+          onPress: () => _addPatientType(GoBackEvent()),
+          label: 'cancel'.text(),
+        ),
+      ],
+      body: FTextField(
+        label: Text('Type Name'),
+        initialValue: _addPatientType.state,
+        onChange: (name) => _addPatientType(ChangeTypeNameEvent(name)),
+      ),
     );
   }
 }

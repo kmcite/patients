@@ -4,7 +4,6 @@ import 'package:objectbox/objectbox.dart';
 class Duty {
   @Id()
   int id = 0;
-
   int shift = 0;
   int day = 0;
   @Transient()

@@ -1,14 +1,15 @@
-import 'package:manager/eda/eda.dart';
+import 'package:patients/domain/repository.dart';
 import 'package:patients/domain/models/hospital.dart';
-
-import '../../main_hmis.dart';
+import 'package:patients/main.dart';
 
 String get _hospitalKey => 'hospital';
 
 final HospitalRepository hospitalRepository = HospitalRepository();
 
-class HospitalRepository extends Service {
-  HospitalRepository();
+class HospitalRepository extends Repository<Hospital> {
+  HospitalRepository() {
+    controller.add(hospital);
+  }
   Hospital get hospital {
     return Hospital.fromJson(prefs.getString(_hospitalKey)) ?? Hospital();
   }
@@ -18,41 +19,25 @@ class HospitalRepository extends Service {
       _hospitalKey,
       hospital.toJson(),
     );
+    controller.add(hospital);
   }
 
   String get name => hospital.name;
   String get info => hospital.info;
   String get city => hospital.city;
-
-  @override
-  void handle(Event event) {
-    if (event is HospitalNameChangedEvent) {
-      setHospital(
-        hospital.copyWith(name: event.name),
-      );
-    } else if (event is HospitalCityChangedEvent) {
-      setHospital(
-        hospital.copyWith(city: event.city),
-      );
-    } else if (event is HospitalInfoChangedEvent) {
-      setHospital(
-        hospital.copyWith(info: event.info),
-      );
-    }
-  }
 }
 
-class HospitalNameChangedEvent extends Event {
-  final String name;
-  HospitalNameChangedEvent(this.name);
-}
+// class HospitalNameChangedEvent extends Event {
+//   final String name;
+//   HospitalNameChangedEvent(this.name);
+// }
 
-class HospitalCityChangedEvent extends Event {
-  final String city;
-  HospitalCityChangedEvent(this.city);
-}
+// class HospitalCityChangedEvent extends Event {
+//   final String city;
+//   HospitalCityChangedEvent(this.city);
+// }
 
-class HospitalInfoChangedEvent extends Event {
-  final String info;
-  HospitalInfoChangedEvent(this.info);
-}
+// class HospitalInfoChangedEvent extends Event {
+//   final String info;
+//   HospitalInfoChangedEvent(this.info);
+// }

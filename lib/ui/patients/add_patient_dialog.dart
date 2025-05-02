@@ -1,6 +1,5 @@
+import 'package:patients/domain/models/patient.dart';
 import 'package:patients/main.dart';
-
-import '../domain/api/patients.dart';
 
 class AddPatientPage extends StatelessWidget {
   AddPatientPage({super.key});
@@ -59,7 +58,7 @@ class AddPatientPage extends StatelessWidget {
               // ignore: unused_local_variable
               final patient = Patient()
                 ..name = nameRM.text
-                ..age = ageRM.text;
+                ..age = ageRM.text as double;
               // context
               //   ..of<PatientsBloc>().put(patient)
               //   ..pop();

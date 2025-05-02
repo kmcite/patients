@@ -1,8 +1,8 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:patients/domain/api/router_bloc.dart';
+import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/main.dart';
-import 'package:patients/ui/add_patient_dialog.dart';
-import 'package:patients/ui/custom_app_bar.dart';
+import 'package:patients/ui/patients/add_patient_dialog.dart';
+import 'package:patients/ui/patients/patients_bloc.dart';
 
 class PatientsPage extends StatelessWidget {
   const PatientsPage({super.key});
@@ -12,21 +12,20 @@ class PatientsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            context.of<RouterBloc>().toRouteByName(HomePage.name);
+            navigator.to(HomePage());
           },
           icon: const Icon(Icons.arrow_back_ios),
         ),
-        title: 'patients',
+        title: Text('patients'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            context.of<RouterBloc>().toRouteByName(AddPatientPage.name),
+        onPressed: () => navigator.to(AddPatientPage()),
         child: const Icon(Icons.add),
       ),
-      body: context.of<PatientsBloc>().patients.isEmpty
+      body: patientsBloc.patients.isEmpty
           ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -40,7 +39,7 @@ class PatientsPage extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              children: context.of<PatientsBloc>().patients.map(
+              children: patientsBloc.patients.map(
                 (patient) {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),

@@ -1,15 +1,22 @@
+import 'dart:async';
+
 import 'package:patients/domain/models/settings.dart';
 import 'package:patients/main.dart';
-import 'package:patients/main_hmis.dart';
 
-final SettingsRepository settingsRepository = SettingsRepository();
+final settingsRepository = SettingsRepository();
 
-class SettingsRepository extends Service {
+class SettingsRepository {
+  SettingsRepository() {
+    controller.add(settings);
+  }
+  Stream<Settings> call() => controller.stream;
+  final controller = StreamController<Settings>.broadcast();
   static const key = 'settings';
   Settings get settings => Settings.fromJson(prefs.getString(key) ?? '{}');
 
   void setSettings(Settings settings) {
     prefs.setString(key, settings.toJson());
+    controller.add(settings);
   }
 
   /// THEME MODE
@@ -17,33 +24,6 @@ class SettingsRepository extends Service {
 
   void setThemeMode(ThemeMode? themeMode) {
     setSettings(settings.copyWith(themeMode: themeMode));
-  }
-
-  /// USER NAME
-  String get userName => settings.userName;
-  void setUserName(String? value) {
-    setSettings(settings.copyWith(userName: value));
-  }
-
-  @override
-  void handle(Event event) {
-    if (event is ThemeModeEvent) {
-      setThemeMode(event.themeMode);
-    } else if (event is ThemeModeToggledEvent) {
-      if (themeMode == ThemeMode.system) {
-        setThemeMode(
-          MediaQuery.of(event.context).platformBrightness == Brightness.dark
-              ? ThemeMode.light
-              : ThemeMode.dark,
-        );
-      } else {
-        setThemeMode(
-          themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark,
-        );
-      }
-    } else if (event is UserNameChangedEvent) {
-      setUserName(event.userName);
-    }
   }
 }
 
@@ -55,9 +35,4 @@ class ThemeModeEvent extends Event {
 class ThemeModeToggledEvent extends Event {
   BuildContext context;
   ThemeModeToggledEvent(this.context);
-}
-
-class UserNameChangedEvent extends Event {
-  final String userName;
-  UserNameChangedEvent(this.userName);
 }

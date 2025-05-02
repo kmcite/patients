@@ -1,4 +1,5 @@
 import 'package:objectbox/objectbox.dart';
+import 'package:patients/domain/models/investigation.dart';
 
 import 'patient_types.dart';
 import 'picture.dart';
@@ -21,8 +22,21 @@ class Patient {
   bool attended = false;
   bool editing = false;
   bool gender = true; // true male
+  String createdAt = '';
+  final investigations = ToMany<Investigation>();
+  @Transient()
+  OutComeStatus outComeStatus = OutComeStatus.emergency;
+
   @Transient()
   String get date {
     return '${timeOfPresentation.day.toString().padLeft(2, '0')}/${timeOfPresentation.month.toString().padLeft(2, '0')}/${timeOfPresentation.year}';
   }
+}
+
+enum OutComeStatus {
+  emergency,
+  discharged,
+  admitted,
+  referred,
+  expired;
 }

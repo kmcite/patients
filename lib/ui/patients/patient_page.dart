@@ -1,9 +1,15 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:patients/domain/api/investigations.dart';
+import 'package:patients/domain/models/patient.dart';
 import 'package:patients/main.dart';
-import 'package:patients/ui/custom_app_bar.dart';
+import 'package:patients/ui/patients/patients_bloc.dart';
 
-class PatientPage extends StatelessWidget {
+class PatientBloc extends Bloc<Patient, void> {
+  @override
+  void get initialState {}
+}
+
+class PatientPage extends UI {
   const PatientPage({super.key, required this.id});
 
   final int id;
@@ -12,10 +18,10 @@ class PatientPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final patient = context.of<PatientsBloc>().get(id);
-    final update = context.of<PatientsBloc>().put;
+    final patient = patientsBloc.get(id);
+    final update = patientsBloc.put;
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: AppBar(
         leading: IconButton(
           onPressed: () {
             // context.pop();
@@ -25,7 +31,7 @@ class PatientPage extends StatelessWidget {
             color: Colors.redAccent,
           ),
         ),
-        title: Text(patient.name, textScaleFactor: 1.5).data!,
+        title: Text(patient.name, textScaleFactor: 1.5),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -39,7 +45,7 @@ class PatientPage extends StatelessWidget {
             ),
             TextFormField(
               initialValue: patient.name,
-              onChanged: (name) => update(patient.copyWith(name: name)),
+              onChanged: (name) => update(patient..name = name),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person, color: Colors.blueAccent),
@@ -47,8 +53,9 @@ class PatientPage extends StatelessWidget {
             ),
             'age'.text(textScaleFactor: 1.2).pad(),
             TextFormField(
-              initialValue: patient.age,
-              onChanged: (age) => update(patient.copyWith(age: age)),
+              initialValue: patient.age.toString(),
+              onChanged: (age) =>
+                  update(patient..age = double.tryParse(age) ?? 0),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.cake, color: Colors.blueAccent),
@@ -59,11 +66,10 @@ class PatientPage extends StatelessWidget {
               children: [
                 Text('investigations', textScaleFactor: 1.2),
                 PopupMenuButton(
-                  onSelected: (investigation) => update(
-                    patient..investigations.add(investigation),
-                  ),
-                  itemBuilder: (_) =>
-                      context.of<InvestigationsBloc>().investigations.map(
+                  onSelected: (investigation) {
+                    // update(patient..investigations.add(investigation));
+                  },
+                  itemBuilder: (_) => investigationsRepository().map(
                     (value) {
                       return PopupMenuItem(
                         value: value,
@@ -108,7 +114,7 @@ class PatientPage extends StatelessWidget {
             TextFormField(
               initialValue: patient.diagnosis,
               onChanged: (value) => update(
-                patient.copyWith(diagnosis: value),
+                patient..diagnosis = value,
               ),
             ),
           ],

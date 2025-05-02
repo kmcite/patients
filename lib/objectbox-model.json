@@ -29,7 +29,7 @@
     },
     {
       "id": "2:4159013604071220306",
-      "lastPropertyId": "13:8633550996493087067",
+      "lastPropertyId": "14:70495681631263186",
       "name": "Patient",
       "properties": [
         {
@@ -100,6 +100,11 @@
           "id": "13:8633550996493087067",
           "name": "gender",
           "type": 1
+        },
+        {
+          "id": "14:70495681631263186",
+          "name": "createdAt",
+          "type": 9
         }
       ],
       "relations": [
@@ -107,6 +112,11 @@
           "id": "1:664341722264876839",
           "name": "pictures",
           "targetId": "4:3618212813481240617"
+        },
+        {
+          "id": "2:1208777791407975785",
+          "name": "investigations",
+          "targetId": "5:7853823722967231000"
         }
       ]
     },
@@ -147,11 +157,35 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "5:7853823722967231000",
+      "lastPropertyId": "3:8170642712981172191",
+      "name": "Investigation",
+      "properties": [
+        {
+          "id": "1:8352170923164623841",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8298037674913744250",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:8170642712981172191",
+          "name": "price",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "4:3618212813481240617",
+  "lastEntityId": "5:7853823722967231000",
   "lastIndexId": "1:7708117350394255182",
-  "lastRelationId": "1:664341722264876839",
+  "lastRelationId": "2:1208777791407975785",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,

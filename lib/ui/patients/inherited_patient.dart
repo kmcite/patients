@@ -1,5 +1,4 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:patients/domain/api/patient_types_repository.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
 import 'package:patients/domain/models/patient_types.dart';

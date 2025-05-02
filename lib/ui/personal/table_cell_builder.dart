@@ -1,4 +1,4 @@
-import '../main.dart';
+import '../../main.dart';
 
 class TableCellBuilder extends UI {
   const TableCellBuilder({super.key, required this.child});

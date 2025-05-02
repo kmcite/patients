@@ -1,9 +1,9 @@
 import '../../main.dart';
 import '../models/duty.dart';
 
-final dutyHoursCalculator = DutyHoursCalculator();
+final dutyHoursCalculator = DutyHoursCalculatorUseCase();
 
-class DutyHoursCalculator {
+class DutyHoursCalculatorUseCase {
   Duration calculateTotalDutyHours() {
     Duration totalDutyDuration = Duration.zero;
     for (final duty in dutiesRepository.getAll()) {

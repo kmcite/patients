@@ -1,11 +1,11 @@
-import 'package:patients/domain/api/patients.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient.dart';
 import 'package:patients/main.dart';
 
-class PatientsBloc with ChangeNotifier {
-  PatientsRepository get patientsRepository => context.of();
+final patientsBloc = PatientsBloc();
 
-  final BuildContext context;
-  PatientsBloc(this.context);
+class PatientsBloc with ChangeNotifier {
+  PatientsBloc();
 
   late List<Patient> patients = patientsRepository.getAll();
 
