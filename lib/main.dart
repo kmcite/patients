@@ -1,11 +1,11 @@
+import 'package:forui/theme.dart';
 import 'package:patients/main.dart';
-import 'package:patients/navigation/navigation_bloc.dart';
+import 'package:patients/domain/api/navigator.dart';
 
 export 'dart:convert';
 export 'dart:io';
 export 'objectbox.g.dart';
 export 'package:colornames/colornames.dart';
-export 'package:flex_color_scheme/flex_color_scheme.dart';
 export 'package:flutter/material.dart' hide Action;
 export 'package:flutter_native_splash/flutter_native_splash.dart';
 export 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,91 +13,66 @@ export 'package:intl/intl.dart' hide TextDirection;
 export 'package:manager/manager.dart';
 export 'package:objectbox/objectbox.dart';
 export 'package:path_provider/path_provider.dart';
-export 'package:patients/user/user.dart';
-export 'package:patients/user/user_ui.dart';
-export 'package:patients/home_page.dart';
-export 'package:patients/roster/duty_hours_calculator.dart';
-export 'package:patients/roster/roster_manager.dart';
-export 'package:patients/roster/roster_page.dart';
-export 'package:patients/roster/roster_table.dart';
-export 'package:patients/roster/table_cell_builder.dart';
-export 'package:patients/roster/upcoming_duties.dart';
-export 'package:patients/roster/upcoming_duty_finder.dart';
-export 'package:patients/settings/border_radius_modifier.dart';
-export 'package:patients/settings/settings.dart';
-export 'package:patients/settings/settings_page.dart';
+export 'package:patients/domain/models/user.dart';
+export 'package:patients/ui/user_ui.dart';
+export 'package:patients/ui/home_page.dart';
+export 'package:patients/domain/api/duty_hours_calculator.dart';
+export 'package:patients/domain/api/roster_manager.dart';
+export 'package:patients/ui/roster_page.dart';
+export 'package:patients/ui/roster_table.dart';
+export 'package:patients/ui/table_cell_builder.dart';
+export 'package:patients/ui/upcoming_duties.dart';
+export 'package:patients/domain/api/upcoming_duty_finder.dart';
+export 'package:patients/domain/api/dark_repository.dart';
+export 'package:patients/ui/settings_page.dart';
 export 'package:states_rebuilder/scr/state_management/common/logger.dart';
 export 'package:states_rebuilder/states_rebuilder.dart';
 export 'package:uuid/uuid.dart';
-export 'patients/patients_page.dart';
+export 'ui/patients/patients_page.dart';
 
-void main() async {
+void main() {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await directoryRM.initializeState();
-  store = await openStore(
-    directory: join(directory.path, 'patients'),
-  );
-  await RM.storageInitializer(HiveStorage());
-  runApp(const PatientsApp());
+  manager(PatientsApp(), openStore: openStore);
 }
 
-class PatientsApp extends UI {
-  const PatientsApp({super.key});
-  @override
-  void didMountWidget(BuildContext context) {
-    FlutterNativeSplash.remove();
-  }
+mixin class _App {
+  Modifier<bool> get dark => darkRepository.dark;
+}
 
+class PatientsApp extends UI with _App {
+  PatientsApp({super.key});
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp(
-      navigatorKey: navigator.key,
+      navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
       home: HomePage(),
-      theme: FlexThemeData.light(
-        scheme: FlexScheme.aquaBlue,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: materialColor(),
-        ),
-        subThemesData: FlexSubThemesData(
-          defaultRadius: borderRadius(),
-          inputDecoratorRadius: borderRadius(),
-          chipRadius: borderRadius(),
-          cardElevation: borderRadius(),
-        ),
-        lightIsWhite: true,
-        useMaterial3: true,
-        appBarElevation: 10,
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 9,
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      builder: (context, child) => FTheme(
+        data: dark() ? FThemes.orange.dark : FThemes.violet.light,
+        child: child!,
       ),
-      darkTheme: FlexThemeData.dark(
-        scheme: FlexScheme.aquaBlue,
-        colorScheme: ColorScheme.fromSwatch(
-          primarySwatch: materialColor(),
-          brightness: Brightness.dark,
-        ),
-        subThemesData: FlexSubThemesData(
-          defaultRadius: borderRadius(),
-          inputDecoratorRadius: borderRadius(),
-          chipRadius: borderRadius(),
-          cardElevation: borderRadius(),
-        ),
-        darkIsTrueBlack: true,
-        useMaterial3: true,
-        appBarElevation: 10,
-        surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
-        blendLevel: 8,
-        visualDensity: FlexColorScheme.comfortablePlatformDensity,
-      ),
-      themeMode: themeMode(),
-      title: 'Patients App', // Added app title
+      themeMode: dark() ? ThemeMode.dark : ThemeMode.light,
+      title: 'Patients App',
     );
   }
 }
 
-final directoryRM = RM.injectFuture(getApplicationDocumentsDirectory);
-Directory get directory => directoryRM.state;
-// late Store store;
+typedef UI = ReactiveStatelessWidget;
+
+extension ContextX on BuildContext {
+  T of<T>() {
+    try {
+      return watch<T>();
+    } catch (_) {
+      return read<T>();
+    }
+  }
+
+  watch<T>() {}
+
+  read<T>() {}
+}

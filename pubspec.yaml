@@ -4,35 +4,36 @@ publish_to: "none"
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.6.0
 dependencies:
+  states_rebuilder: ^6.4.0
+  forui: ^0.10.0+1
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  states_rebuilder: ^6.4.0
   path_provider: ^2.1.3
-  flex_color_scheme: ^7.3.1
   uuid: ^4.4.0
   colornames: ^0.2.0
   hive_flutter: ^1.1.0
   intl: ^0.19.0
-  freezed_annotation: ^2.4.4
+  freezed_annotation:
   json_annotation: ^4.9.0
-  flutter_bloc: ^8.1.3
   flutter_native_splash: ^2.4.1
   package_info_plus: ^8.0.0
-  objectbox: ^4.0.3
-  objectbox_generator: ^4.0.3
-  objectbox_flutter_libs: ^4.0.3
+  objectbox: ^4.2.0
+  objectbox_generator: ^4.2.0
+  objectbox_flutter_libs: ^4.2.0
   manager:
     path: ..//manager
-  file_picker: ^8.1.2
+  file_picker: ^9.0.0
   path: ^1.9.0
-
+  shared_preferences: ^2.5.3
+  go_router: ^15.1.1
+  font_awesome_flutter: ^10.8.0
 dev_dependencies:
   flutter_lints: ^5.0.0
   json_serializable: ^6.7.1
-  freezed: ^2.4.7
+  freezed:
   build_runner: ^2.3.3
   flutter_launcher_icons: ^0.14.1
 

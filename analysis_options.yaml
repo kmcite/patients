@@ -10,6 +10,7 @@
 analyzer:
   errors:
     deprecated_member_use: ignore
+    implicit_call_tearoffs: ignore
     prefer_const_constructors: ignore
     unused_element: ignore
 include: package:flutter_lints/flutter.yaml

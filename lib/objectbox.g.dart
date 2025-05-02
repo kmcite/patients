@@ -14,10 +14,10 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'patient_types/patient_types.dart';
-import 'patients/patient.dart';
-import 'pictures/picture.dart';
-import 'roster/duty.dart';
+import 'domain/models/patient_types.dart';
+import 'domain/models/patient.dart';
+import 'domain/models/picture.dart';
+import 'domain/models/duty.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
@@ -49,7 +49,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(2, 4159013604071220306),
       name: 'Patient',
-      lastPropertyId: const obx_int.IdUid(12, 4225333234815189415),
+      lastPropertyId: const obx_int.IdUid(13, 8633550996493087067),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -113,6 +113,11 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(12, 4225333234815189415),
             name: 'age',
             type: 8,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(13, 8633550996493087067),
+            name: 'gender',
+            type: 1,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[
@@ -253,7 +258,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final managementOffset = fbb.writeString(object.management);
           final diagnosisOffset = fbb.writeString(object.diagnosis);
           final otherOffset = fbb.writeString(object.other);
-          fbb.startTable(13);
+          fbb.startTable(14);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, nameOffset);
           fbb.addInt64(2, object.timeOfPresentation.millisecondsSinceEpoch);
@@ -266,6 +271,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addBool(9, object.attended);
           fbb.addBool(10, object.editing);
           fbb.addFloat64(11, object.age);
+          fbb.addBool(12, object.gender);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -294,7 +300,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ..editing =
                 const fb.BoolReader().vTableGet(buffer, rootOffset, 24, false)
             ..age =
-                const fb.Float64Reader().vTableGet(buffer, rootOffset, 26, 0);
+                const fb.Float64Reader().vTableGet(buffer, rootOffset, 26, 0)
+            ..gender =
+                const fb.BoolReader().vTableGet(buffer, rootOffset, 28, false);
           object.patientType.targetId =
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
           object.patientType.attach(store);
@@ -423,6 +431,10 @@ class Patient_ {
   /// See [Patient.age].
   static final age =
       obx.QueryDoubleProperty<Patient>(_entities[1].properties[11]);
+
+  /// See [Patient.gender].
+  static final gender =
+      obx.QueryBooleanProperty<Patient>(_entities[1].properties[12]);
 
   /// see [Patient.pictures]
   static final pictures =
