@@ -1,76 +1,108 @@
+import 'package:forui/forui.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
 import 'package:patients/main.dart';
 
-class AddPatientPage extends StatelessWidget {
-  AddPatientPage({super.key});
+import '../../domain/models/patient_types.dart';
 
-  static const name = '/add_patient_dialog';
+typedef AddPatientState = ({String name, double age, PatientType? type});
 
-  final _formKey = GlobalKey<FormState>();
+class AddPatientEvent {}
+
+class SavePatientEvent extends AddPatientEvent {}
+
+class ChangeNameEvent extends AddPatientEvent {
+  final String name;
+  ChangeNameEvent(this.name);
+}
+
+class ChangeAgeEvent extends AddPatientEvent {
+  final String age;
+  ChangeAgeEvent(this.age);
+}
+
+class CancelDialogEvent extends AddPatientEvent {}
+
+class AddPatientBloc extends Bloc<AddPatientEvent, AddPatientState> {
+  AddPatientBloc() {
+    on<ChangeNameEvent>(
+      (event) => emit(
+        (name: event.name, age: state.age, type: state.type),
+      ),
+    );
+    on<ChangeAgeEvent>(
+      (event) => emit(
+        (
+          name: state.name,
+          age: double.tryParse(event.age) ?? 0.0,
+          type: state.type,
+        ),
+      ),
+    );
+    on<SavePatientEvent>(
+      (event) {
+        final patient = Patient()
+          ..name = state.name
+          ..age = state.age;
+        patientsRepository(patient);
+        navigator.back();
+      },
+    );
+    on<CancelDialogEvent>(
+      (event) => navigator.back(),
+    );
+  }
+  @override
+  get initialState => (name: '', age: 20, type: null);
+}
+
+late AddPatientBloc _addPatientBloc;
+
+class AddPatientPage extends UI {
+  const AddPatientPage({super.key});
+
+  @override
+  void didMountWidget(BuildContext context) {
+    super.didMountWidget(context);
+    _addPatientBloc = AddPatientBloc();
+  }
+
+  @override
+  void didUnmountWidget() {
+    _addPatientBloc.dispose();
+    super.didUnmountWidget();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final nameRM = TextEditingController();
-    final ageRM = TextEditingController(text: '20');
-
-    return AlertDialog(
+    return FDialog(
       title: const Text('add patient'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'name',
-              ),
-              controller: nameRM,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'please enter some text';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: ageRM,
-              autovalidateMode: AutovalidateMode.always,
-              decoration: const InputDecoration(
-                labelText: 'age',
-              ),
-              validator: (value) {
-                if (value == null ||
-                    value.isEmpty ||
-                    int.tryParse(value) == null) {
-                  return 'please enter a valid age';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FTextField(
+            label: Text('Name'),
+            initialValue: _addPatientBloc().name,
+            onChange: (value) => _addPatientBloc(ChangeNameEvent(value)),
+          ),
+          FTextField(
+            label: Text('Age'),
+            initialValue: _addPatientBloc().age.toString(),
+            onChange: (value) => _addPatientBloc(ChangeAgeEvent(value)),
+          ),
+          
+        ],
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              // ignore: unused_local_variable
-              final patient = Patient()
-                ..name = nameRM.text
-                ..age = ageRM.text as double;
-              // context
-              //   ..of<PatientsBloc>().put(patient)
-              //   ..pop();
-            }
-          },
-          child: const Text('save'),
+        FButton(
+          onPress: () => _addPatientBloc(SavePatientEvent()),
+          label: const Text('save'),
         ),
-        TextButton(
-          onPressed: () {
-            // context.pop();
-          },
-          child: const Text('cancel'),
+        FButton(
+          onPress: () => _addPatientBloc(CancelDialogEvent()),
+          label: const Text('cancel'),
         ),
       ],
     );

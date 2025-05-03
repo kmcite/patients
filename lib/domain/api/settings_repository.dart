@@ -27,12 +27,12 @@ class SettingsRepository {
   }
 }
 
-class ThemeModeEvent extends Event {
-  final ThemeMode themeMode;
-  ThemeModeEvent(this.themeMode);
-}
+// class ThemeModeEvent extends Event {
+//   final ThemeMode themeMode;
+//   ThemeModeEvent(this.themeMode);
+// }
 
-class ThemeModeToggledEvent extends Event {
-  BuildContext context;
-  ThemeModeToggledEvent(this.context);
-}
+// class ThemeModeToggledEvent extends Event {
+//   BuildContext context;
+//   ThemeModeToggledEvent(this.context);
+// }

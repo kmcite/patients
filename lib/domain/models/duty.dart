@@ -1,7 +1,9 @@
+import 'package:manager/model.dart';
 import 'package:objectbox/objectbox.dart';
 
 @Entity()
-class Duty {
+class Duty extends Model {
+  @override
   @Id()
   int id = 0;
   int shift = 0;

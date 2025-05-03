@@ -4,6 +4,8 @@ import 'package:forui/forui.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/settings_repository.dart';
 import 'package:patients/domain/models/hospital.dart';
+import 'package:patients/domain/models/patient.dart';
+import 'package:patients/domain/models/settings.dart';
 import 'package:patients/ui/app_drawer.dart';
 import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/ui/investigations_page.dart';
@@ -15,16 +17,20 @@ import 'package:patients/ui/personal/user_page.dart';
 
 import '../../main.dart';
 
-typedef _HomeState = ({Hospital hospital, ThemeMode themeMode, int count});
+typedef _HomeState = ({
+  Hospital hospital,
+  ThemeMode themeMode,
+  int count,
+});
 
 class ToggleThemeModeHomeEvent {
   const ToggleThemeModeHomeEvent();
 }
 
 class _Home extends Bloc<ToggleThemeModeHomeEvent, _HomeState> {
-  StreamSubscription? _hospitalSubscription;
-  StreamSubscription? _darkSubscription;
-  StreamSubscription? _countSubscription;
+  StreamSubscription<Hospital>? _hospitalSubscription;
+  StreamSubscription<Settings>? _darkSubscription;
+  StreamSubscription<List<Patient>>? _countSubscription;
   _Home() {
     on<ToggleThemeModeHomeEvent>(
       (event) {
@@ -36,14 +42,14 @@ class _Home extends Bloc<ToggleThemeModeHomeEvent, _HomeState> {
         settingsRepository.setThemeMode(themeMode);
         emit(
           (
-            count: state.count,
-            themeMode: themeMode,
             hospital: state.hospital,
+            themeMode: themeMode,
+            count: state.count,
           ),
         );
       },
     );
-    _hospitalSubscription = hospitalRepository().listen(
+    _hospitalSubscription = hospitalRepository.stream.listen(
       (hospital) => emit(
         (
           hospital: hospital,
@@ -73,7 +79,7 @@ class _Home extends Bloc<ToggleThemeModeHomeEvent, _HomeState> {
   }
   @override
   get initialState => (
-        hospital: hospitalRepository.hospital,
+        hospital: hospitalRepository(),
         themeMode: settingsRepository.themeMode,
         count: patientsRepository.count(),
       );

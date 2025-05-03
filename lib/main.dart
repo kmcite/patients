@@ -28,7 +28,7 @@ export 'package:patients/ui/personal/upcoming_duties.dart';
 export 'package:patients/domain/api/upcoming_duty_finder.dart';
 export 'package:states_rebuilder/states_rebuilder.dart';
 export 'package:uuid/uuid.dart';
-export 'ui/patients/patients_page.dart';
+export 'ui/patients/patients/patients_page.dart';
 
 late SharedPreferences prefs;
 

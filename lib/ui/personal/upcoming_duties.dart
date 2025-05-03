@@ -1,80 +1,93 @@
+import 'dart:async';
+
+import 'package:forui/forui.dart';
+import 'package:patients/domain/models/duty.dart';
+
 import '../../main.dart';
+
+typedef _UpcomingDutiesState = ({Duty? duty, List<Duty> duties});
+
+class _UpcomingDuties extends Bloc<void, _UpcomingDutiesState> {
+  StreamSubscription? _subscription;
+
+  _UpcomingDuties() {
+    _subscription = dutiesRepository.watch().listen(
+      (duties) {
+        emit(
+          (
+            duty: upcomingDutyFinder.findNextRosterEntry(
+              DateTime.now(),
+              duties,
+            ),
+            duties: duties,
+          ),
+        );
+      },
+    );
+  }
+  @override
+  get initialState => (
+        duty: upcomingDutyFinder.findNextRosterEntry(
+          DateTime.now(),
+          dutiesRepository(),
+        ),
+        duties: dutiesRepository()
+      );
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+}
+
+final upcomingDuties = _UpcomingDuties();
 
 class UpcomingDuties extends UI {
   const UpcomingDuties({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final entry = upcomingDutyFinder.findNextRosterEntry(
-      now,
-      dutiesRepository.getAll(),
-    );
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Personal Roster',
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (upcomingDuties().duties.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'Please setup your personal roster to see your upcoming duty.',
+              textAlign: TextAlign.center,
+            ),
+          )
+        else ...[
+          Text('Upcoming Duty').pad(),
+          Column(
+            children: [
+              _buildRow(
+                '  DAY  ',
+                upcomingDuties().duty?.dayType().name.toUpperCase() ?? '-',
+              ),
+              _buildRow(
+                '  SHIFT  ',
+                upcomingDuties().duty?.shiftType().name.toUpperCase() ?? '-',
+              ),
+            ],
           ),
-          if (dutiesRepository.getAll().isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                'Please setup your personal roster to see your upcoming duty.',
-                textAlign: TextAlign.center,
-              ),
-            )
-          else ...[
-            const SizedBox(height: 16),
-            Text(
-              'Upcoming Duty',
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Card(
-                clipBehavior: Clip.antiAlias,
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                    // borderRadius: BorderRadius.circular(borderRadius()),
-                    ),
-                child: Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  border: TableBorder.all(
-                    width: 1,
-                    // color: materialColor().withOpacity(0.5),
-                    // borderRadius: BorderRadius.circular(borderRadius()),
-                  ),
-                  children: [
-                    _buildTableRow(
-                      '  DAY  ',
-                      entry?.dayType().name.toUpperCase() ?? '-',
-                    ),
-                    _buildTableRow(
-                      '  SHIFT  ',
-                      entry?.shiftType().name.toUpperCase() ?? '-',
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ],
-      ),
+      ],
     );
   }
 
-  TableRow _buildTableRow(String label, String value) {
-    return TableRow(
+  Widget _buildRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        TableCellBuilder(
-          child: Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        FLabel(
+          axis: Axis.vertical,
+          child: label.text(
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
-        TableCellBuilder(
-          child: Text(value),
-        ),
+        FBadge(label: value.text()),
       ],
     );
   }

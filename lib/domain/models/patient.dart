@@ -1,11 +1,12 @@
-import 'package:objectbox/objectbox.dart';
 import 'package:patients/domain/models/investigation.dart';
+import 'package:patients/main.dart';
 
 import 'patient_types.dart';
 import 'picture.dart';
 
 @Entity()
-class Patient {
+class Patient extends Model {
+  @override
   @Id()
   int id = 0;
   String name = '';

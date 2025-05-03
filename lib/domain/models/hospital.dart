@@ -1,10 +1,10 @@
-import 'dart:convert';
+import 'package:patients/main.dart';
 
-class Hospital {
+class Hospital extends Model {
   final String name;
   final String city;
   final String info;
-  const Hospital({
+  Hospital({
     this.name = '',
     this.city = '',
     this.info = '',
@@ -12,7 +12,7 @@ class Hospital {
 
   static fromJson(String? string) {
     if (string == null || string.isEmpty) {
-      return const Hospital();
+      return Hospital();
     }
     final Map<String, dynamic> json = jsonDecode(string);
     return Hospital(
@@ -22,13 +22,14 @@ class Hospital {
     );
   }
 
-  String toJson() {
+  @override
+  Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'name': name,
       'city': city,
       'info': info,
     };
-    return jsonEncode(json);
+    return json;
   }
 
   Hospital copyWith({
@@ -42,4 +43,7 @@ class Hospital {
       info: info ?? this.info,
     );
   }
+
+  @override
+  int id = 0;
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:forui/forui.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/navigator.dart';
@@ -9,28 +11,30 @@ const double paddingValue = 16.0;
 const double borderRadiusValue = 12.0;
 const double iconSize = 24.0;
 
-class SettingsEvent {}
+class SettingsEvent {
+  const SettingsEvent();
+}
 
 class HospitalNameChangedEvent extends SettingsEvent {
   final String name;
-  HospitalNameChangedEvent(this.name);
+  const HospitalNameChangedEvent(this.name);
 }
 
 class HospitalCityChangedEvent extends SettingsEvent {
   final String city;
-  HospitalCityChangedEvent(this.city);
+  const HospitalCityChangedEvent(this.city);
 }
 
 class HospitalInfoChangedEvent extends SettingsEvent {
   final String info;
-  HospitalInfoChangedEvent(this.info);
+  const HospitalInfoChangedEvent(this.info);
 }
 
 class RestoreInvestigationsEvent extends SettingsEvent {}
 
 class ThemeModeToggledEvent extends SettingsEvent {
   final BuildContext context;
-  ThemeModeToggledEvent(this.context);
+  const ThemeModeToggledEvent(this.context);
 }
 
 final settingsBloc = SettingsBloc();
@@ -41,37 +45,26 @@ typedef SettingsState = ({
 });
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
+  StreamSubscription<Hospital>? _subscription;
   SettingsBloc() {
     on<HospitalNameChangedEvent>(
       (event) {
-        hospitalRepository.setHospital(
+        hospitalRepository(
           state.hospital.copyWith(name: event.name),
-        );
-        emit(
-          (
-            hospital: state.hospital.copyWith(name: event.name),
-            themeMode: state.themeMode
-          ),
         );
       },
     );
     on<HospitalCityChangedEvent>(
       (event) {
-        emit(
-          (
-            hospital: state.hospital.copyWith(city: event.city),
-            themeMode: state.themeMode
-          ),
+        hospitalRepository(
+          state.hospital.copyWith(city: event.city),
         );
       },
     );
     on<HospitalInfoChangedEvent>(
       (event) {
-        emit(
-          (
-            hospital: state.hospital.copyWith(info: event.info),
-            themeMode: state.themeMode
-          ),
+        hospitalRepository(
+          state.hospital.copyWith(info: event.info),
         );
       },
     );
@@ -99,12 +92,25 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         // }
       },
     );
+    _subscription = hospitalRepository.stream.listen(
+      (hospital) {
+        emit(
+          (hospital: hospital, themeMode: state.themeMode),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   @override
   get initialState => (
-        hospital: hospitalRepository.hospital,
-        themeMode: settingsRepository.themeMode
+        hospital: hospitalRepository(),
+        themeMode: settingsRepository.themeMode,
       );
 }
 
@@ -138,33 +144,30 @@ class SettingsPage extends UI {
   }
 
   Widget _buildHospitalTile(BuildContext context) {
-    return FLabel(
-      axis: Axis.vertical,
-      label: const Text('HOSPITAL INFORMATIONS'),
-      child: Column(
-        children: [
-          FTextField(
-            label: Text('NAME'),
-            initialValue: settingsBloc().hospital.name,
-            onChange: (name) => settingsBloc(HospitalNameChangedEvent(name)),
-            maxLength: 4,
-          ),
-          FTextField(
-            label: Text('CITY'),
-            initialValue: settingsBloc().hospital.city,
-            onChange: (city) => settingsBloc(HospitalCityChangedEvent(city)),
-            maxLength: 20,
-          ),
-          FTextField(
-            label: Text('INFORMATIONS'),
-            initialValue: settingsBloc().hospital.info,
-            onChange: (info) => settingsBloc(HospitalInfoChangedEvent(info)),
-            minLines: 2,
-            maxLength: 50,
-            maxLines: 4,
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        Text('HOSPITAL INFORMATIONS'),
+        FTextField(
+          label: Text('NAME'),
+          initialValue: settingsBloc().hospital.name,
+          onChange: (name) => settingsBloc(HospitalNameChangedEvent(name)),
+          maxLength: 4,
+        ),
+        FTextField(
+          label: Text('CITY'),
+          initialValue: settingsBloc().hospital.city,
+          onChange: (city) => settingsBloc(HospitalCityChangedEvent(city)),
+          maxLength: 20,
+        ),
+        FTextField(
+          label: Text('INFORMATIONS'),
+          initialValue: settingsBloc().hospital.info,
+          onChange: (info) => settingsBloc(HospitalInfoChangedEvent(info)),
+          minLines: 2,
+          maxLength: 50,
+          maxLines: 4,
+        ),
+      ],
     );
   }
 
@@ -198,7 +201,7 @@ class SettingsPage extends UI {
       label: Row(
         children: [
           FIcon(FAssets.icons.flaskRound).pad(),
-          Text('Built-In Investigations'),
+          Text('RESTORE INVESTIGATIONS'),
         ],
       ),
     );

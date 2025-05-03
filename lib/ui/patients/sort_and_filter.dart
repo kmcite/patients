@@ -1,5 +1,4 @@
-import 'package:patients/domain/api/patients_repository.dart';
-import 'package:patients/domain/models/patient.dart';
+import 'package:forui/forui.dart';
 import 'package:patients/main.dart';
 
 enum FilterPatients {
@@ -20,42 +19,18 @@ enum SortPatients {
   }
 }
 
-mixin class SortAndFilterBloc {
-  Iterable<Patient> get _patients => patientsRepository.getAll();
-
-  SortPatients get sort => sortRM.state.firstOrNull ?? SortPatients.name;
-  FilterPatients get filter => filterRM.state.firstOrNull ?? FilterPatients.all;
-  final sortRM = RM.inject(() => {SortPatients.date});
-  final filterRM = RM.inject(() => {FilterPatients.all});
-
-  Iterable<Patient> get patients {
-    final filtered = switch (filter) {
-      FilterPatients.all => _patients,
-      FilterPatients.today => _patients.where(
-          (patient) {
-            return patient.timeOfPresentation.day == DateTime.now().day;
-          },
-        ),
-      FilterPatients.last10 => _patients.take(10),
-    };
-
-    return filtered.toList()
-      ..sort(
-        (a, b) {
-          return switch (sort) {
-            SortPatients.date =>
-              a.timeOfPresentation.compareTo(b.timeOfPresentation),
-            SortPatients.name => a.name.compareTo(b.name),
-          };
-        },
-      );
-  }
-
-  void put(Patient p) => patientsRepository.put(p);
-}
-
-class SortAndFilter extends UI with SortAndFilterBloc {
-  SortAndFilter({super.key});
+class SortAndFilter extends UI {
+  final SortPatients sort;
+  final FilterPatients filter;
+  final void Function(SortPatients)? onSortChanged;
+  final void Function(FilterPatients)? onFilterChanged;
+  const SortAndFilter({
+    super.key,
+    this.sort = SortPatients.name,
+    this.filter = FilterPatients.all,
+    this.onSortChanged,
+    this.onFilterChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +38,12 @@ class SortAndFilter extends UI with SortAndFilterBloc {
       children: [
         Row(
           children: [
-            CircleAvatar(
+            FAvatar.raw(
               child: 'F'.text(),
             ).pad(all: 4),
             ...FilterPatients.values.map(
               (eachfilter) {
-                return FilterChip(
+                return FBadge(
                   label: Text(
                     eachfilter
                         .toString()
@@ -78,14 +53,12 @@ class SortAndFilter extends UI with SortAndFilterBloc {
                         .replaceAll('today', 'Today\'s ')
                         .replaceAll('all', 'All'),
                   ),
-                  selected: filter == eachfilter,
-                  onSelected: (value) {
-                    if (value) {
-                      filterRM.state = {eachfilter};
-                    } else {
-                      filterRM.state = {};
-                    }
-                  },
+                  style: filter == eachfilter
+                      ? FBadgeStyle.primary
+                      : FBadgeStyle.secondary,
+                  // onSelected: (value) {
+                  //   onFilterChanged?.call(eachfilter);
+                  // },
                 ).pad(all: 4);
               },
             )
@@ -93,23 +66,21 @@ class SortAndFilter extends UI with SortAndFilterBloc {
         ),
         Row(
           children: [
-            CircleAvatar(
+            FAvatar.raw(
               child: 'S'.text(),
             ).pad(all: 4),
             ...SortPatients.values.map(
               (eachfilter) {
-                return FilterChip(
+                return FBadge(
                   label: Text(
                     eachfilter.description,
                   ),
-                  selected: sort == eachfilter,
-                  onSelected: (value) {
-                    if (value) {
-                      sortRM.state = {eachfilter};
-                    } else {
-                      sortRM.state = {};
-                    }
-                  },
+                  style: sort == eachfilter
+                      ? FBadgeStyle.primary
+                      : FBadgeStyle.secondary,
+                  // onSelected: (value) {
+                  //   onSortChanged?.call(eachfilter);
+                  // },
                 ).pad(all: 4);
               },
             )
