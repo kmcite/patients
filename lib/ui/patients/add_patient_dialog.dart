@@ -84,25 +84,24 @@ class AddPatientPage extends UI {
         children: [
           FTextField(
             label: Text('Name'),
-            initialValue: _addPatientBloc().name,
+            initialText: _addPatientBloc().name,
             onChange: (value) => _addPatientBloc(ChangeNameEvent(value)),
           ),
           FTextField(
             label: Text('Age'),
-            initialValue: _addPatientBloc().age.toString(),
+            initialText: _addPatientBloc().age.toString(),
             onChange: (value) => _addPatientBloc(ChangeAgeEvent(value)),
           ),
-          
         ],
       ),
       actions: [
         FButton(
           onPress: () => _addPatientBloc(SavePatientEvent()),
-          label: const Text('save'),
+          child: const Text('save'),
         ),
         FButton(
           onPress: () => _addPatientBloc(CancelDialogEvent()),
-          label: const Text('cancel'),
+          child: const Text('cancel'),
         ),
       ],
     );

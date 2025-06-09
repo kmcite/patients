@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/patient.dart';
-import 'package:patients/_dermatosis/features/patients/patients_bloc.dart';
-import 'package:patients/_dermatosis/navigator.dart';
-
-import '../../main.dart';
+import 'package:manager/manager.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/ui/patients_bloc.dart';
+import 'package:patients/domain/models/patient.dart';
 
 final patientBloc = PatientBloc();
 
@@ -21,21 +21,31 @@ class PatientPage extends UI {
     return FScaffold(
       header: FHeader(
         title: patient.name.text(),
-        actions: [
+        suffixes: [
           FHeaderAction.back(onPress: navigator.back),
         ],
       ),
-      content: ListView(
+      footer: FButton(
+        onPress: () {
+          // patientsBloc.put(
+          //   patient..editing = !patient.editing,
+          // );
+        },
+        child: Text(
+          (patient.editing ? 'EDITING' : 'READING'),
+        ),
+      ).pad(),
+      child: ListView(
         children: [
           FTextField(
             label: Text('name'),
-            initialValue: patient.name,
+            initialText: patient.name,
             onChange: (value) => patientsBloc.put(patient..name = value),
           ).pad(),
           // complaints
           FTextField(
             label: 'complaints'.text(),
-            initialValue: patient.complaints,
+            initialText: patient.complaints,
             onChange: (value) => patientsBloc.put(patient..complaints = value),
             minLines: 2,
             maxLines: 8,
@@ -43,7 +53,7 @@ class PatientPage extends UI {
           // management
           FTextField(
             label: 'management'.text(),
-            initialValue: patient.management,
+            initialText: patient.management,
             onChange: (value) => patientsBloc.put(patient..management = value),
             minLines: 3,
             maxLines: 10,
@@ -54,7 +64,7 @@ class PatientPage extends UI {
             axis: Axis.vertical,
             label: 'lesions'.text(),
             description: FButton.icon(
-              child: FIcon(FAssets.icons.plus),
+              child: Icon(FIcons.plus),
               onPress: () async {
                 String patterns = '';
                 final lesion = await navigator.toDialog<Lesion>(
@@ -62,20 +72,20 @@ class PatientPage extends UI {
                     title: 'add new lesion'.text(),
                     body: FTextField(
                       label: Text('patterns'),
-                      initialValue: patterns,
+                      initialText: patterns,
                       onChange: (value) => patterns = value,
                       minLines: 5,
                       maxLines: 5,
                     ),
                     actions: [
                       FButton(
-                        label: 'save'.text(),
+                        child: 'save'.text(),
                         onPress: () {
                           // navigator.back(Lesion()..patterns = patterns);
                         },
                       ),
                       FButton(
-                        label: 'cancel'.text(),
+                        child: 'cancel'.text(),
                         onPress: () => navigator.back(),
                       ),
                     ],
@@ -91,7 +101,7 @@ class PatientPage extends UI {
               children: patient.lesions.map(
                 (lesion) {
                   return FTile(
-                    semanticLabel: lesion.patterns,
+                    semanticsLabel: lesion.patterns,
                     title: lesion.patterns.text(),
                     onPress: () {
                       String patterns = lesion.patterns;
@@ -100,14 +110,14 @@ class PatientPage extends UI {
                           title: 'add new lesion'.text(),
                           body: FTextField(
                             label: Text('patterns'),
-                            initialValue: patterns,
+                            initialText: patterns,
                             onChange: (value) => patterns = value,
                             minLines: 5,
                             maxLines: 5,
                           ),
                           actions: [
                             FButton(
-                              label: 'save'.text(),
+                              child: 'save'.text(),
                               onPress: () {
                                 // lesionsRM.put(lesion..patterns = patterns);
                                 // patientsBloc.put(
@@ -117,7 +127,7 @@ class PatientPage extends UI {
                               },
                             ),
                             FButton(
-                              label: 'cancel'.text(),
+                              child: 'cancel'.text(),
                               onPress: () => navigator.back(),
                             ),
                           ],
@@ -133,7 +143,7 @@ class PatientPage extends UI {
           /// diagnosis
           FTextField(
             label: 'diagnosis'.text(),
-            initialValue: patient.diagnosis,
+            initialText: patient.diagnosis,
             onChange: (value) {
               patientsBloc.put(patient..diagnosis = value);
             },
@@ -199,16 +209,6 @@ class PatientPage extends UI {
           ).pad(),
         ],
       ),
-      footer: FButton(
-        onPress: () {
-          // patientsBloc.put(
-          //   patient..editing = !patient.editing,
-          // );
-        },
-        label: Text(
-          (patient.editing ? 'EDITING' : 'READING'),
-        ),
-      ).pad(),
     );
   }
 }

@@ -1,117 +1,28 @@
-import 'dart:async';
-
 import 'package:forui/forui.dart';
+import 'package:manager/dark/dark_repository.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/navigator.dart';
-import 'package:patients/domain/api/settings_repository.dart';
-import 'package:patients/domain/models/hospital.dart';
 import 'package:patients/main.dart';
 
 const double paddingValue = 16.0;
 const double borderRadiusValue = 12.0;
 const double iconSize = 24.0;
 
-class SettingsEvent {
-  const SettingsEvent();
+void changeHospitalName(String name) {
+  hospitalRepository(hospital.copyWith(name: name));
 }
 
-class HospitalNameChangedEvent extends SettingsEvent {
-  final String name;
-  const HospitalNameChangedEvent(this.name);
+void changeHospitalCity(String name) {
+  hospitalRepository(hospital.copyWith(city: name));
 }
 
-class HospitalCityChangedEvent extends SettingsEvent {
-  final String city;
-  const HospitalCityChangedEvent(this.city);
+void changeHospitalInfo(String name) {
+  hospitalRepository(hospital.copyWith(info: name));
 }
 
-class HospitalInfoChangedEvent extends SettingsEvent {
-  final String info;
-  const HospitalInfoChangedEvent(this.info);
-}
-
-class RestoreInvestigationsEvent extends SettingsEvent {}
-
-class ThemeModeToggledEvent extends SettingsEvent {
-  final BuildContext context;
-  const ThemeModeToggledEvent(this.context);
-}
-
-final settingsBloc = SettingsBloc();
-
-typedef SettingsState = ({
-  Hospital hospital,
-  ThemeMode themeMode,
-});
-
-class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  StreamSubscription<Hospital>? _subscription;
-  SettingsBloc() {
-    on<HospitalNameChangedEvent>(
-      (event) {
-        hospitalRepository(
-          state.hospital.copyWith(name: event.name),
-        );
-      },
-    );
-    on<HospitalCityChangedEvent>(
-      (event) {
-        hospitalRepository(
-          state.hospital.copyWith(city: event.city),
-        );
-      },
-    );
-    on<HospitalInfoChangedEvent>(
-      (event) {
-        hospitalRepository(
-          state.hospital.copyWith(info: event.info),
-        );
-      },
-    );
-    on<ThemeModeToggledEvent>(
-      (event) {
-        final themeMode = switch (settingsRepository.themeMode) {
-          ThemeMode.system => ThemeMode.light,
-          ThemeMode.light => ThemeMode.dark,
-          ThemeMode.dark => ThemeMode.system,
-        };
-        settingsRepository.setThemeMode(themeMode);
-        emit(
-          (hospital: state.hospital, themeMode: themeMode),
-        );
-      },
-    );
-    on<RestoreInvestigationsEvent>(
-      (event) {
-        // for (final investigation in investigationsBuiltIn) {
-        //   if (!context.of<InvestigationsBloc>().state.contains(
-        //         investigation,
-        //       )) {
-        //     context.of<InvestigationsBloc>().put(investigation);
-        //   }
-        // }
-      },
-    );
-    _subscription = hospitalRepository.stream.listen(
-      (hospital) {
-        emit(
-          (hospital: hospital, themeMode: state.themeMode),
-        );
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  get initialState => (
-        hospital: hospitalRepository(),
-        themeMode: settingsRepository.themeMode,
-      );
+void restoreInvestigations() {}
+void toggleThemeMode() {
+  darkRepository.state = !dark;
 }
 
 class SettingsPage extends UI {
@@ -121,15 +32,15 @@ class SettingsPage extends UI {
   Widget build(BuildContext context) {
     return FScaffold(
       header: FHeader.nested(
-        prefixActions: [
+        prefixes: [
           FButton.icon(
-            child: FIcon(FAssets.icons.x),
+            child: Icon(FIcons.x),
             onPress: () => navigator.back(),
           ),
         ],
         title: Text('Settings'),
       ),
-      content: ListView(
+      child: ListView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(paddingValue),
         children: [
@@ -149,20 +60,20 @@ class SettingsPage extends UI {
         Text('HOSPITAL INFORMATIONS'),
         FTextField(
           label: Text('NAME'),
-          initialValue: settingsBloc().hospital.name,
-          onChange: (name) => settingsBloc(HospitalNameChangedEvent(name)),
+          initialText: hospital.name,
+          onChange: changeHospitalName,
           maxLength: 4,
         ),
         FTextField(
           label: Text('CITY'),
-          initialValue: settingsBloc().hospital.city,
-          onChange: (city) => settingsBloc(HospitalCityChangedEvent(city)),
+          initialText: hospital.city,
+          onChange: changeHospitalCity,
           maxLength: 20,
         ),
         FTextField(
           label: Text('INFORMATIONS'),
-          initialValue: settingsBloc().hospital.info,
-          onChange: (info) => settingsBloc(HospitalInfoChangedEvent(info)),
+          initialText: hospital.info,
+          onChange: changeHospitalInfo,
           minLines: 2,
           maxLength: 50,
           maxLines: 4,
@@ -173,17 +84,17 @@ class SettingsPage extends UI {
 
   Widget _buildThemeToggleButton(BuildContext context) {
     return FButton(
-      onPress: () => settingsBloc(ThemeModeToggledEvent(context)),
-      label: Row(
+      onPress: toggleThemeMode,
+      child: Row(
         children: [
-          FIcon(
-            switch (settingsBloc().themeMode) {
-              ThemeMode.system => FAssets.icons.settings,
-              ThemeMode.light => FAssets.icons.sun,
-              ThemeMode.dark => FAssets.icons.moon,
+          Icon(
+            switch (themeMode) {
+              ThemeMode.system => FIcons.settings,
+              ThemeMode.light => FIcons.sun,
+              ThemeMode.dark => FIcons.moon,
             },
           ).pad(),
-          Text(settingsBloc().themeMode.name.toUpperCase()),
+          Text(themeMode.name.toUpperCase()),
         ],
       ),
     );
@@ -196,11 +107,11 @@ class SettingsPage extends UI {
           //     ? null
           //     :
           () {
-        settingsBloc(RestoreInvestigationsEvent());
+        restoreInvestigations();
       },
-      label: Row(
+      child: Row(
         children: [
-          FIcon(FAssets.icons.flaskRound).pad(),
+          Icon(FIcons.flaskRound).pad(),
           Text('RESTORE INVESTIGATIONS'),
         ],
       ),

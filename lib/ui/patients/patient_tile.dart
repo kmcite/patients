@@ -50,8 +50,8 @@ class PatientTile extends UI {
           ],
         ),
       ),
-      suffixIcon: FIcon(
-        FAssets.icons.arrowRight,
+      suffixIcon: Icon(
+        FIcons.arrowRight,
         size: 20,
       ),
       onPress: () {

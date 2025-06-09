@@ -1,7 +1,6 @@
 import 'package:manager/model.dart';
 import 'package:objectbox/objectbox.dart';
-
-import 'patient.dart';
+import 'package:patients/domain/models/patient.dart';
 
 @Entity()
 class Doctor extends Model {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:manager/manager.dart';
-import 'package:patients/_dermatosis/domain/api/doctors_repository.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/doctor.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:patients/domain/api/doctors_repository.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/doctor.dart';
 import 'package:states_rebuilder/states_rebuilder.dart';
 
 mixin AddDoctorDialogBloc {

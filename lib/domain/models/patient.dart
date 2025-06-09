@@ -12,6 +12,8 @@ class Patient extends Model {
   String name = '';
   double age = 0; // in years
   @Property(type: PropertyType.date)
+  DateTime? dateOfBirth;
+  @Property(type: PropertyType.date)
   DateTime timeOfPresentation = DateTime.now();
   final patientType = ToOne<PatientType>();
   final pictures = ToMany<Picture>();
@@ -20,6 +22,17 @@ class Patient extends Model {
   String management = '';
   String diagnosis = '';
   String other = '';
+  String password = '';
+  String email = '';
+
+  final address = ToOne<Address>();
+
+  final contact = ToOne<Contact>();
+
+  @Backlink('patient')
+  final lesions = ToMany<Lesion>();
+
+  final images = ToMany<Imagery>();
   bool attended = false;
   bool editing = false;
   bool gender = true; // true male
@@ -40,4 +53,45 @@ enum OutComeStatus {
   admitted,
   referred,
   expired;
+}
+
+@Entity()
+class Lesion {
+  @Id()
+  int id = 0;
+  String patterns = '';
+
+  final patient = ToOne<Patient>();
+}
+
+@Entity()
+class Contact {
+  @Id()
+  int id = 0;
+  String countryCode = '';
+  String mnp = '';
+  String phoneCode = '';
+
+  final patient = ToOne<Patient>();
+}
+
+@Entity()
+class Address {
+  @Id()
+  int id = 0;
+  String town = '';
+  String city = '';
+  String province = '';
+  String country = '';
+
+  final patient = ToOne<Patient>();
+}
+
+@Entity()
+class Imagery extends Model {
+  @override
+  @Id()
+  int id = 0;
+  String path = '';
+  final patient = ToOne<Patient>();
 }

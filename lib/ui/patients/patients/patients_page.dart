@@ -33,42 +33,42 @@ class PatientsPage extends UI {
     return FScaffold(
       header: FHeader.nested(
         title: 'Patients'.text(),
-        prefixActions: [
+        prefixes: [
           FButton.icon(
             onPress: () => navigator.back(),
-            child: FIcon(FAssets.icons.x),
+            child: Icon(FIcons.x),
           ),
           FAvatar.raw(
             child: '${_patientsBloc.sorted.length}'.text(),
           ),
         ],
-        suffixActions: [
+        suffixes: [
           FButton.icon(
             onPress: () => _patientsBloc(ToggleFilterEvent()),
-            child: FIcon(
+            child: Icon(
               switch (_patientsBloc().filter) {
-                FilterPatients.all => FAssets.icons.calendar,
-                FilterPatients.today => FAssets.icons.filter,
-                FilterPatients.last10 => FAssets.icons.tent,
+                FilterPatients.all => FIcons.calendar,
+                FilterPatients.today => FIcons.fileType,
+                FilterPatients.last10 => FIcons.tent,
               },
             ),
           ),
           FButton.icon(
             onPress: () => _patientsBloc(ToggleSortEvent()),
-            child: FIcon(
+            child: Icon(
               switch (_patientsBloc().sort) {
-                SortPatients.date => FAssets.icons.arrowUpAZ,
-                SortPatients.name => FAssets.icons.diameter,
+                SortPatients.date => FIcons.arrowUpAZ,
+                SortPatients.name => FIcons.diameter,
               },
             ),
           ),
           FButton.icon(
             onPress: () => _patientsBloc(OpenNewPatientDialogEvent()),
-            child: FIcon(FAssets.icons.plus),
+            child: Icon(FIcons.plus),
           ),
         ],
       ),
-      content: Column(
+      child: Column(
         children: [
           SortAndFilter(
             filter: _patientsBloc().filter,

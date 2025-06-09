@@ -76,24 +76,24 @@ class UserPage extends UI {
     final duration = userBloc().jobDuration;
     return FScaffold(
       header: FHeader.nested(
-        prefixActions: [
+        prefixes: [
           FButton.icon(
-            child: FIcon(FAssets.icons.x),
+            child: Icon(FIcons.x),
             onPress: () => navigator.back(),
           )
         ],
         title: Text(userBloc().name),
       ),
-      content: Column(
+      child: Column(
         children: [
           FTextField(
             label: Text('Name'),
-            initialValue: userBloc().name,
+            initialText: userBloc().name,
             onChange: (userName) => userBloc(UserNameChangedEvent(userName)),
           ).pad(),
           FButton(
             onPress: () => userBloc(ToggleShowDurationInEvent()),
-            label:
+            child:
                 'Showing in: ${userBloc().showDurationIn.name}, Toggle?'.text(),
           ).pad(),
           Column(
@@ -119,7 +119,7 @@ class UserPage extends UI {
               FButton(
                 onPress: () => userBloc(UpdateJobStartedOnEvent(context)),
                 prefix: const Icon(Icons.update),
-                label: const Text('Update'),
+                child: const Text('Update'),
               ),
             ],
           ).pad(),

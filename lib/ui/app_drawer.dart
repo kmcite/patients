@@ -16,8 +16,8 @@ class AppDrawer extends UI {
           children: [
             FAvatar.raw(
               size: 120,
-              child: FIcon(
-                FAssets.icons.hospital,
+              child: Icon(
+                FIcons.hospital,
                 size: 80,
               ),
             ).pad(),
@@ -30,29 +30,29 @@ class AppDrawer extends UI {
           ],
         ),
       ),
-      content: FTileGroup(
+      child: FTileGroup(
         label: FButton.icon(
-          child: FIcon(FAssets.icons.x),
+          child: Icon(FIcons.x),
           onPress: () => navigator.back(),
         ),
         divider: FTileDivider.full,
         children: [
           FTile(
-            prefixIcon: FIcon(FAssets.icons.user),
+            prefixIcon: Icon(FIcons.user),
             title: Text('Patients'),
             onPress: () => navigator
               ..back()
               ..to(PatientsPage()),
           ),
           FTile(
-            prefixIcon: FIcon(FAssets.icons.type),
+            prefixIcon: Icon(FIcons.type),
             title: Text('Patient Types'),
             onPress: () => navigator
               ..back()
               ..to(PatientTypesPage()),
           ),
           FTile(
-            prefixIcon: FIcon(FAssets.icons.pictureInPicture2),
+            prefixIcon: Icon(FIcons.pictureInPicture2),
             title: Text('Pictures'),
             onPress: () {
               navigator
@@ -61,14 +61,14 @@ class AppDrawer extends UI {
             },
           ),
           FTile(
-            prefixIcon: FIcon(FAssets.icons.settings2),
+            prefixIcon: Icon(FIcons.settings2),
             title: Text('Settings'),
             onPress: () => navigator
               ..back()
               ..to(SettingsPage()),
           ),
           FTile(
-            prefixIcon: FIcon(FAssets.icons.calendar),
+            prefixIcon: Icon(FIcons.calendar),
             title: Text('Duty Roster'),
             onPress: () => navigator
               ..back()

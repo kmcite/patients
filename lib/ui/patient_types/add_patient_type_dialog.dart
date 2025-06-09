@@ -63,16 +63,16 @@ class AddPatientTypeDialog extends UI {
               PatientType()..type = _addPatientType(),
             ),
           ),
-          label: 'save'.text(),
+          child: 'save'.text(),
         ),
         FButton(
           onPress: () => _addPatientType(GoBackEvent()),
-          label: 'cancel'.text(),
+          child: 'cancel'.text(),
         ),
       ],
       body: FTextField(
         label: Text('Type Name'),
-        initialValue: _addPatientType.state,
+        initialText: _addPatientType.state,
         onChange: (name) => _addPatientType(ChangeTypeNameEvent(name)),
       ),
     );

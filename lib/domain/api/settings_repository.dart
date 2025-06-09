@@ -1,38 +1,25 @@
-import 'dart:async';
-
-import 'package:patients/domain/models/settings.dart';
 import 'package:patients/main.dart';
+
+import '../models/settings.dart';
 
 final settingsRepository = SettingsRepository();
 
 class SettingsRepository {
-  SettingsRepository() {
-    controller.add(settings);
+  late final settingsRM = RM.inject(
+    () => Settings(),
+  );
+
+  Settings settings([Settings? settings]) {
+    if (settings != null) {
+      settingsRM
+        ..state = settings
+        ..notify();
+    }
+    return settingsRM.state;
   }
-  Stream<Settings> call() => controller.stream;
-  final controller = StreamController<Settings>.broadcast();
-  static const key = 'settings';
-  Settings get settings => Settings.fromJson(prefs.getString(key) ?? '{}');
 
-  void setSettings(Settings settings) {
-    prefs.setString(key, settings.toJson());
-    controller.add(settings);
-  }
-
-  /// THEME MODE
-  ThemeMode get themeMode => settings.themeMode;
-
-  void setThemeMode(ThemeMode? themeMode) {
-    setSettings(settings.copyWith(themeMode: themeMode));
+  String clinicName([String? value]) {
+    if (value != null) settings(settings()..clinicName = value);
+    return settings().clinicName;
   }
 }
-
-// class ThemeModeEvent extends Event {
-//   final ThemeMode themeMode;
-//   ThemeModeEvent(this.themeMode);
-// }
-
-// class ThemeModeToggledEvent extends Event {
-//   BuildContext context;
-//   ThemeModeToggledEvent(this.context);
-// }

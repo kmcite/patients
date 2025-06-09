@@ -91,19 +91,17 @@ class InvestigationsPage extends UI {
     return FScaffold(
       header: FHeader.nested(
         title: Text('Investigations'),
-        prefixActions: [
+        prefixes: [
           FButton.icon(
             onPress: () => navigator.back(),
-            child: FIcon(FAssets.icons.x),
+            child: Icon(FIcons.x),
           )
         ],
-        suffixActions: [
+        suffixes: [
           FButton.icon(
             onPress: () => _investigations(ToggleEditingInvestigationsEvent()),
-            child: FIcon(
-              _investigations().editing
-                  ? FAssets.icons.notebookPen
-                  : FAssets.icons.pen,
+            child: Icon(
+              _investigations().editing ? FIcons.notebookPen : FIcons.pen,
             ),
           ),
           FButton.icon(
@@ -112,11 +110,11 @@ class InvestigationsPage extends UI {
                 Investigation(),
               ),
             ),
-            child: FIcon(FAssets.icons.plus),
+            child: Icon(FIcons.plus),
           ),
         ],
       ),
-      content: ListView.builder(
+      child: ListView.builder(
         itemCount: _investigations().investigations.length,
         itemBuilder: (context, index) {
           final investigation =
@@ -129,7 +127,7 @@ class InvestigationsPage extends UI {
                     children: [
                       Expanded(
                         child: FTextField(
-                          initialValue: investigation.name,
+                          initialText: investigation.name,
                           onChange: (value) {
                             _investigations(
                               PutInvestigationsEvent(
@@ -145,12 +143,12 @@ class InvestigationsPage extends UI {
                             RemoveInvestigationsEvent(investigation.id),
                           );
                         },
-                        child: FIcon(FAssets.icons.delete),
+                        child: Icon(FIcons.delete),
                       ).pad(),
                     ],
                   )
                 : FAlert(
-                    icon: FIcon(FAssets.icons.ambulance),
+                    icon: Icon(FIcons.ambulance),
                     title: investigation.name.text(),
                   ),
           );

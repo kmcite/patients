@@ -37,7 +37,7 @@ class PatientPage extends UI {
       children: [
         if (patient.editing)
           FTextField(
-            // initialValue: patient().name,
+            // initialText: patient().name,
             label: 'Name'.text(),
             // onChange: (value) => patient(patient()..name = value),
           )
@@ -48,7 +48,7 @@ class PatientPage extends UI {
         // Age
         if (patient.editing)
           FTextField(
-            initialValue: patient.age.toStringAsFixed(0),
+            initialText: patient.age.toStringAsFixed(0),
             label: 'Age (Years)'.text(),
             keyboardType: TextInputType.number,
             // onChange: (value) => patient().age = double.tryParse(value) ?? 0,
@@ -90,7 +90,7 @@ class PatientPage extends UI {
                 // patient(patient()..timeOfPresentation = time);
               }
             },
-            label: DateFormat('EEEE, d/MM/y')
+            child: DateFormat('EEEE, d/MM/y')
                 .format(
                   patient.timeOfPresentation,
                 )
@@ -122,7 +122,7 @@ class PatientPage extends UI {
         patient.editing
             ? FTextField(
                 label: const Text('Complaints'),
-                initialValue: patient.complaints,
+                initialText: patient.complaints,
                 maxLines: null,
                 onChange: (value) {
                   // patient(patient()..complaints = value);
@@ -140,7 +140,7 @@ class PatientPage extends UI {
         patient.editing
             ? FTextField(
                 label: const Text('Examination'),
-                initialValue: patient.examination,
+                initialText: patient.examination,
                 maxLines: null,
                 onChange: (value) {
                   // patient(patient()..examination = value);
@@ -158,7 +158,7 @@ class PatientPage extends UI {
         patient.editing
             ? FTextField(
                 label: const Text('Diagnosis'),
-                initialValue: patient.diagnosis,
+                initialText: patient.diagnosis,
                 maxLines: null,
                 onChange: (value) {
                   // patient(patient()..diagnosis = value);
@@ -176,7 +176,7 @@ class PatientPage extends UI {
         if (patient.editing)
           FTextField(
             label: 'Management'.text(),
-            initialValue: patient.management,
+            initialText: patient.management,
             maxLines: null,
             // onChange: (value) => patient(patient()..management = value),
           )
@@ -224,7 +224,7 @@ class PatientPage extends UI {
         if (patient.editing)
           FButton(
             onPress: () {},
-            label: const Text('Add Picture'),
+            child: const Text('Add Picture'),
           ),
       ],
     );
@@ -234,7 +234,7 @@ class PatientPage extends UI {
     return patient.editing
         ? FTextField(
             label: 'Other Information'.text(),
-            initialValue: patient.other,
+            initialText: patient.other,
             maxLines: null,
             onChange: (value) => patient.other = value,
           )
@@ -254,20 +254,20 @@ class PatientPage extends UI {
     return FScaffold(
       header: FHeader.nested(
         title: Text(patient.name.isNotEmpty ? patient.name : 'Details'),
-        prefixActions: [
+        prefixes: [
           FButton.icon(
             onPress: navigator.back,
-            child: FIcon(FAssets.icons.arrowLeft),
+            child: Icon(FIcons.arrowLeft),
           ),
         ],
-        suffixActions: [
+        suffixes: [
           FButton.icon(
             style: FButtonStyle.primary,
             onPress: () {
               // patient(patient()..editing = !patient().editing);
             },
-            child: FIcon(
-              patient.editing ? FAssets.icons.save : FAssets.icons.pen,
+            child: Icon(
+              patient.editing ? FIcons.save : FIcons.pen,
             ),
           ),
           FButton.icon(
@@ -276,11 +276,11 @@ class PatientPage extends UI {
               // remove(patient().id);
               navigator.back();
             },
-            child: FIcon(FAssets.icons.delete),
+            child: Icon(FIcons.delete),
           ),
         ],
       ),
-      content: SingleChildScrollView(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +300,7 @@ class PatientPage extends UI {
                   // );
                 }
               },
-              label: (patient.patientType.target?.type ?? 'N/A').text(),
+              child: (patient.patientType.target?.type ?? 'N/A').text(),
             ),
             _buildPicturesSection(),
             const SizedBox(height: 20),
@@ -335,7 +335,7 @@ class PatientTypeDialog extends UI {
                 //   ..state = type
                 //   ..notify();
               },
-              label: type.type.text(),
+              child: type.type.text(),
             ).pad(all: 4);
           },
         ).toList(),

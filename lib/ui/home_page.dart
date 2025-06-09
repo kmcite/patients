@@ -1,19 +1,17 @@
 // ignore_for_file: unused_local_variable, unused_element
 
 import 'package:forui/forui.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/api/settings_repository.dart';
-import 'package:patients/_dermatosis/domain/models/doctor.dart';
-import 'package:patients/_dermatosis/features/home/add_patient_dialog.dart';
-import 'package:patients/_dermatosis/features/patients/patient_page.dart';
-import 'package:patients/_dermatosis/features/patients/patients_bloc.dart';
-import 'package:patients/_dermatosis/features/patients/patients_page.dart';
-import 'package:patients/_dermatosis/features/search/search_page.dart';
-import 'package:patients/_dermatosis/features/settings/settings_page.dart';
-import 'package:patients/_dermatosis/main.dart';
-import 'package:patients/_dermatosis/navigator.dart';
-
-import '../../domain/models/patient.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/api/settings_repository.dart';
+import 'package:patients/domain/models/doctor.dart';
+import 'package:patients/main.dart';
+import 'package:patients/ui/add_patient_dialog.dart';
+import 'package:patients/ui/patient_page.dart';
+import 'package:patients/ui/patients_bloc.dart';
+import 'package:patients/ui/search_page.dart';
+import 'package:patients/ui/settings_page_2.dart';
+import 'package:patients/domain/models/patient.dart';
 
 mixin HomeBloc {
   final clinicName = settingsRepository.clinicName;
@@ -57,14 +55,14 @@ class HomePage extends UI with HomeBloc {
     return FScaffold(
       header: FHeader(
         title: const Text('Home'),
-        actions: [
+        suffixes: [
           FButton.icon(
             onPress: () => navigator.to(SettingsPage()),
-            child: FIcon(FAssets.icons.settings),
+            child: Icon(FIcons.settings),
           ),
         ],
       ),
-      content: ListView(
+      child: ListView(
         children: [
           FLabel(
             axis: Axis.vertical,
@@ -84,15 +82,15 @@ class HomePage extends UI with HomeBloc {
                     );
                     if (patient != null) patientsBloc.put(patient);
                   },
-                  child: FIcon(FAssets.icons.plus),
+                  child: Icon(FIcons.plus),
                 ).pad(),
                 FButton.icon(
                   onPress: () => navigator.to(SearchPage()),
-                  child: FIcon(FAssets.icons.search),
+                  child: Icon(FIcons.search),
                 ).pad(),
                 FButton.icon(
                   onPress: () => navigator.to(PatientsPage()),
-                  child: FIcon(FAssets.icons.list),
+                  child: Icon(FIcons.list),
                 ).pad(),
               ],
             ),

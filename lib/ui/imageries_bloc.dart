@@ -1,8 +1,7 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:patients/_dermatosis/domain/api/imageries_repository.dart';
-
-import '../../main.dart';
-import '../../domain/models/patient.dart';
+import 'package:patients/domain/api/imageries_repository.dart';
+import 'package:patients/domain/models/patient.dart';
+import 'package:states_rebuilder/states_rebuilder.dart';
 
 final imageriesBloc = ImageriesBloc();
 

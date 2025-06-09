@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:manager/manager.dart';
-import 'package:patients/_dermatosis/features/home/home_page.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/ui/home_page.dart';
 
 class LoginPage extends UI {
   const LoginPage({super.key});

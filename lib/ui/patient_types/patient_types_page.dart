@@ -73,22 +73,22 @@ class PatientTypesPage extends UI {
     return FScaffold(
       header: FHeader.nested(
         title: const Text('Patient Types'),
-        prefixActions: [
+        prefixes: [
           FButton.icon(
-            child: FIcon(FAssets.icons.arrowLeft),
+            child: Icon(FIcons.arrowLeft),
             onPress: () {
               navigator.back();
             },
           ),
         ],
-        suffixActions: [
+        suffixes: [
           FButton.icon(
-            child: FIcon(FAssets.icons.plus),
+            child: Icon(FIcons.plus),
             onPress: () => _patientTypes(NavigateToAddTypeDialogEvent()),
           ),
         ],
       ),
-      content: ListView.builder(
+      child: ListView.builder(
         itemCount: _patientTypes().types.length,
         itemBuilder: (context, index) {
           final patientType = _patientTypes().types[index];
@@ -106,7 +106,7 @@ class PatientTypeItem extends UI {
   Widget build(BuildContext context) {
     return FTextField(
       key: Key('${patientType.id}'),
-      initialValue: patientType.type,
+      initialText: patientType.type,
       onChange: (value) {
         _patientTypes(
           UpdatePatientTypeEvent(patientType..type = value),
@@ -117,7 +117,7 @@ class PatientTypeItem extends UI {
         children: [
           Text('${patientType.id}. ${patientType.type}'),
           FButton.icon(
-            child: FIcon(FAssets.icons.delete),
+            child: Icon(FIcons.delete),
             onPress: () =>
                 _patientTypes(RemovePatientTypeEvent(patientType.id)),
           ),

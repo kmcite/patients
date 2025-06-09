@@ -1,5 +1,5 @@
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/patient.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient.dart';
 import 'package:states_rebuilder/states_rebuilder.dart';
 
 final patientsBloc = PatientsBloc();

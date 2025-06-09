@@ -1,9 +1,10 @@
 import 'package:forui/forui.dart';
-import 'package:patients/_dermatosis/domain/api/doctors_repository.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/patient.dart';
-import 'package:patients/_dermatosis/main.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:patients/domain/api/doctors_repository.dart';
+import 'package:patients/domain/models/patient.dart';
+import 'package:patients/main.dart';
+
+import '../domain/api/navigator.dart';
+import '../domain/api/patients_repository.dart';
 
 class AddPatientDialogState {
   String name = '';
@@ -65,11 +66,11 @@ class AddPatientDialog extends UI with AddPatientDialogBloc {
       actions: [
         FButton(
           onPress: cancel,
-          label: 'cancel'.text(),
+          child: 'cancel'.text(),
         ),
         FButton(
           onPress: okay,
-          label: 'yes'.text(),
+          child: 'yes'.text(),
         ),
       ],
     );

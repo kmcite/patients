@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:manager/manager.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/patient.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient.dart';
 import 'package:states_rebuilder/states_rebuilder.dart';
 
-import '../patients/patient_page.dart';
+import 'patient_page.dart';
 
 final searchRM = SearchBloc();
 
@@ -27,13 +27,13 @@ class SearchPage extends UI {
     return FScaffold(
       header: FHeader(
         title: 'Search'.text(),
-        actions: [
+        suffixes: [
           FHeaderAction.back(
             onPress: navigator.back,
           ),
         ],
       ),
-      content: Column(
+      child: Column(
         children: [
           FTextField(
             controller: searchRM.searchRM.controller,

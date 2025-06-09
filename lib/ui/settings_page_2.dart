@@ -1,22 +1,21 @@
 import 'package:forui/forui.dart';
-import 'package:patients/_dermatosis/domain/api/authentication_repository.dart';
-import 'package:patients/_dermatosis/domain/api/settings_repository.dart';
-import 'package:patients/_dermatosis/domain/models/authentication.dart';
-import 'package:patients/_dermatosis/features/authentication/login_page.dart';
-import 'package:patients/_dermatosis/features/settings/add_doctor_dialog.dart';
-import 'package:patients/_dermatosis/navigator.dart';
-
-import '../../main.dart';
+import 'package:patients/domain/api/authentication_repository.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/settings_repository.dart';
+import 'package:patients/domain/models/authentication.dart';
+import 'package:patients/main.dart';
+import 'package:patients/ui/login_page.dart';
+import 'package:patients/ui/add_doctor_dialog.dart';
 
 mixin SettingsBloc {
   void logout() {
-    authenticationRepository.authentication(Authentication());
+    authentication = Authentication();
     navigator.toAndRemoveUntil(LoginPage());
   }
 
-  final authentication = authenticationRepository.authentication;
+  // final authentication = authenticationRepository.authentication;
   final clinicName = settingsRepository.clinicName;
-  final themeMode = settingsRepository.themeMode;
+  // final themeMode = settingsRepository.themeMode;
 }
 
 class SettingsPage extends UI with SettingsBloc {
@@ -26,20 +25,20 @@ class SettingsPage extends UI with SettingsBloc {
     return FScaffold(
       header: FHeader.nested(
         title: const Text('Settings'),
-        prefixActions: [
+        prefixes: [
           FButton.icon(
             onPress: () => navigator.back(),
-            child: FIcon(FAssets.icons.arrowLeft),
+            child: Icon(FIcons.arrowLeft),
           ),
         ],
-        suffixActions: [
+        suffixes: [
           FButton.icon(
             onPress: () => logout(),
-            child: FIcon(FAssets.icons.logOut),
+            child: Icon(FIcons.logOut),
           )
         ],
       ),
-      content: ListView(
+      child: ListView(
         children: [
           FLabel(
             axis: Axis.vertical,
@@ -51,38 +50,38 @@ class SettingsPage extends UI with SettingsBloc {
                 return FTile(
                   title: mode.name.toUpperCase().text(),
                   onPress: () {
-                    themeMode(mode);
+                    // this.themeMode(mode);
                   },
                 );
               },
             ),
             child: FTile(
-              title: themeMode().name.toUpperCase().text(),
+              title: (dark ? 'DARK' : 'LIGHT').text(),
             ),
           ),
           FDivider(),
           FTextField(
             label: Text('Clinic / Hospital Name'),
-            initialValue: clinicName(),
+            initialText: clinicName(),
             onChange: clinicName,
           ).pad(),
           FDivider(),
           FButton(
             onPress: () => navigator.toDialog(AddDoctorDialog()),
-            label: "Create a Doctor".text(),
+            child: "Create a Doctor".text(),
           ).pad(),
           FDivider(),
           FBadge(
-            label: authentication().name.text(),
+            child: authentication.name.text(),
           ).pad(),
           FBadge(
-            label: authentication().userType.text(),
+            child: authentication.userType.text(),
           ).pad(),
           FBadge(
-            label: authentication().email.text(),
+            child: authentication.email.text(),
           ).pad(),
           FBadge(
-            label: authentication().password.text(),
+            child: authentication.password.text(),
           ).pad(),
         ],
       ),

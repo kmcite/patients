@@ -44,7 +44,10 @@ class SortAndFilter extends UI {
             ...FilterPatients.values.map(
               (eachfilter) {
                 return FBadge(
-                  label: Text(
+                  style: filter == eachfilter
+                      ? FBadgeStyle.primary
+                      : FBadgeStyle.secondary,
+                  child: Text(
                     eachfilter
                         .toString()
                         .split('.')
@@ -53,9 +56,6 @@ class SortAndFilter extends UI {
                         .replaceAll('today', 'Today\'s ')
                         .replaceAll('all', 'All'),
                   ),
-                  style: filter == eachfilter
-                      ? FBadgeStyle.primary
-                      : FBadgeStyle.secondary,
                   // onSelected: (value) {
                   //   onFilterChanged?.call(eachfilter);
                   // },
@@ -72,12 +72,12 @@ class SortAndFilter extends UI {
             ...SortPatients.values.map(
               (eachfilter) {
                 return FBadge(
-                  label: Text(
-                    eachfilter.description,
-                  ),
                   style: sort == eachfilter
                       ? FBadgeStyle.primary
                       : FBadgeStyle.secondary,
+                  child: Text(
+                    eachfilter.description,
+                  ),
                   // onSelected: (value) {
                   //   onSortChanged?.call(eachfilter);
                   // },

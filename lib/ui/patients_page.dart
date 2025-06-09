@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:manager/manager.dart';
-import 'package:patients/_dermatosis/features/imageries/patient_tile.dart';
-import 'package:patients/_dermatosis/features/patients/patients_bloc.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/ui/patient_tile.dart';
+import 'package:patients/ui/patients_bloc.dart';
 
 class PatientsPage extends UI {
   const PatientsPage({super.key});
@@ -13,11 +13,11 @@ class PatientsPage extends UI {
     return FScaffold(
       header: FHeader(
         title: const Text('dermatoma'),
-        actions: [
+        suffixes: [
           FHeaderAction.back(onPress: navigator.back),
         ],
       ),
-      content: ListView.builder(
+      child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         itemCount: patientsBloc.patients.length,
         itemBuilder: (context, index) => PatientTile(

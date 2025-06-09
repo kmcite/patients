@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:patients/_dermatosis/domain/models/patient.dart';
-import 'package:patients/_dermatosis/features/patients/patient_page.dart';
-import 'package:patients/_dermatosis/main.dart';
-import 'package:patients/_dermatosis/navigator.dart';
+import 'package:manager/manager.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/ui/patient_page.dart';
+import 'package:patients/domain/models/patient.dart';
 
 class PatientTile extends UI {
   final Patient patient;
@@ -18,7 +19,7 @@ class PatientTile extends UI {
         onPress: () => navigator.to(
           PatientPage(patient.id),
         ),
-        label: Icon(Icons.info),
+        child: Icon(Icons.info),
       ),
     );
   }

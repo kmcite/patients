@@ -10,7 +10,7 @@ class Hospital extends Model {
     this.info = '',
   });
 
-  static fromJson(String? string) {
+  static Hospital fromJson(String? string) {
     if (string == null || string.isEmpty) {
       return Hospital();
     }

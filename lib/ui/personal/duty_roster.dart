@@ -43,10 +43,10 @@ class DutyRoster extends UI {
   Widget build(BuildContext context) {
     return FScaffold(
       header: FHeader.nested(
-        prefixActions: [
+        prefixes: [
           FButton.icon(
             onPress: navigator.back,
-            child: FIcon(FAssets.icons.x),
+            child: Icon(FIcons.x),
           ),
         ],
         title: const Text(
@@ -56,7 +56,7 @@ class DutyRoster extends UI {
           ),
         ),
       ),
-      content: ListView(
+      child: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
           Text(

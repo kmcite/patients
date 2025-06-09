@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:manager/manager.dart';
-import 'package:patients/_dermatosis/domain/api/authentication_repository.dart';
-import 'package:patients/_dermatosis/domain/api/doctors_repository.dart';
-import 'package:patients/_dermatosis/domain/api/patients_repository.dart';
-import 'package:patients/_dermatosis/domain/models/authentication.dart';
+import 'package:patients/domain/api/authentication_repository.dart';
+import 'package:patients/domain/api/doctors_repository.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/authentication.dart';
 import 'package:states_rebuilder/states_rebuilder.dart';
 
 mixin AuthenticationBloc {
@@ -19,10 +19,6 @@ mixin AuthenticationBloc {
   final nameRM = RM.injectTextEditing(text: 'Adn');
   final emailRM = RM.injectTextEditing(text: 'adn@gmail.com');
   final passwordRM = RM.injectTextEditing(text: '123456');
-
-  Authentication authentication([Authentication? value]) {
-    return authenticationRepository.authentication(value);
-  }
 
   void login() {
     final type = switch (index()) {
@@ -56,14 +52,12 @@ mixin AuthenticationBloc {
         },
     };
     final (doctor, patient) = request();
-    authentication(
-      authentication()
-        ..id = doctor?.id ?? patient?.id ?? 0
-        ..userType = type
-        ..name = nameRM.text
-        ..email = emailRM.text
-        ..password = passwordRM.text,
-    );
+    authentication = authentication
+      ..id = doctor?.id ?? patient?.id ?? 0
+      ..userType = type
+      ..name = nameRM.text
+      ..email = emailRM.text
+      ..password = passwordRM.text;
   }
 
   bool get invalidCredentials {
@@ -86,10 +80,10 @@ class AuthenticationPage extends UI with AuthenticationBloc {
             FTabs(
               initialIndex: index(),
               onPress: index,
-              tabs: [
+              children: [
                 FTabEntry(
                   label: 'DOCTOR'.text(),
-                  content: FLabel(
+                  child: FLabel(
                     axis: Axis.vertical,
                     child: Column(
                       children: [
@@ -109,7 +103,7 @@ class AuthenticationPage extends UI with AuthenticationBloc {
                 ),
                 FTabEntry(
                   label: 'PATIENT'.text(),
-                  content: Column(
+                  child: Column(
                     children: [
                       FTextField(
                         label: 'Name'.text(),
@@ -127,13 +121,13 @@ class AuthenticationPage extends UI with AuthenticationBloc {
               ],
             ),
             FButton(
-              label: const Text('Login'),
               onPress: invalidCredentials ? null : () => login(),
+              child: const Text('Login'),
             ).pad(),
             FButton(
-              label: const Text('By pass login'),
+              child: const Text('By pass login'),
               onPress: () {
-                authentication(Authentication()..id = 1);
+                authentication = Authentication()..id = 1;
               },
             ).pad(),
           ],

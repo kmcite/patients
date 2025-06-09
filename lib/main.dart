@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import 'package:forui/theme.dart';
-import 'package:patients/domain/api/settings_repository.dart';
+import 'package:manager/dark/dark_repository.dart';
 import 'package:patients/main.dart';
 import 'package:patients/domain/api/navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,39 +32,18 @@ late SharedPreferences prefs;
 
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  FlutterNativeSplash.preserve(
+    widgetsBinding: widgetsBinding,
+  );
   prefs = await SharedPreferences.getInstance();
-  manager(MyApp(), openStore: openStore);
+  manager(
+    MyApp(),
+    openStore: openStore,
+  );
 }
 
-typedef _MyAppState = ({ThemeMode themeMode, bool dark});
-
-final _myApp = _MyApp();
-
-class _MyApp extends Bloc<void, _MyAppState> {
-  StreamSubscription? _subscription;
-  _MyApp() {
-    _subscription = settingsRepository().listen(
-      (settings) => emit(
-        (
-          themeMode: settings.themeMode,
-          dark: settings.themeMode == ThemeMode.dark
-        ),
-      ),
-    );
-  }
-  @override
-  get initialState => (
-        themeMode: settingsRepository.themeMode,
-        dark: settingsRepository.themeMode == ThemeMode.dark,
-      );
-
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
-  }
-}
+bool get dark => darkRepository.state;
+ThemeMode get themeMode => dark ? ThemeMode.dark : ThemeMode.light;
 
 class MyApp extends UI {
   const MyApp({super.key});
@@ -80,11 +57,11 @@ class MyApp extends UI {
       darkTheme: ThemeData.dark(),
       builder: (context, child) {
         return FTheme(
-          data: _myApp().dark ? FThemes.orange.dark : FThemes.violet.light,
+          data: dark ? FThemes.orange.dark : FThemes.violet.light,
           child: child!,
         );
       },
-      themeMode: _myApp().themeMode,
+      themeMode: themeMode,
     );
   }
 }

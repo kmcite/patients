@@ -87,7 +87,7 @@ class UpcomingDuties extends UI {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        FBadge(label: value.text()),
+        FBadge(child: value.text()),
       ],
     );
   }
