@@ -1,15 +1,17 @@
 import 'package:forui/forui.dart';
 import 'package:patients/main.dart';
-import 'package:patients/domain/api/navigator.dart';
-import 'package:patients/ui/patient_types/patient_types_page.dart';
-import 'package:patients/ui/pictures/pictures_page.dart';
 import 'package:patients/ui/settings_page.dart';
 
-class AppDrawer extends UI {
+class AppDrawerBloc extends Bloc {}
+
+class AppDrawer extends UI<AppDrawerBloc> {
+  @override
+  AppDrawerBloc create() => AppDrawerBloc();
+
   const AppDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context, bloc) {
     return FScaffold(
       header: FHeader(
         title: Column(
@@ -35,44 +37,52 @@ class AppDrawer extends UI {
           child: Icon(FIcons.x),
           onPress: () => navigator.back(),
         ),
-        divider: FTileDivider.full,
+        divider: FItemDivider.full,
         children: [
           FTile(
-            prefixIcon: Icon(FIcons.user),
+            prefix: Icon(FIcons.user),
             title: Text('Patients'),
-            onPress: () => navigator
-              ..back()
-              ..to(PatientsPage()),
-          ),
-          FTile(
-            prefixIcon: Icon(FIcons.type),
-            title: Text('Patient Types'),
-            onPress: () => navigator
-              ..back()
-              ..to(PatientTypesPage()),
-          ),
-          FTile(
-            prefixIcon: Icon(FIcons.pictureInPicture2),
-            title: Text('Pictures'),
             onPress: () {
-              navigator
-                ..back()
-                ..to(const PicturesPage());
+              // navigator
+              // ..back()
+              // ..to(PatientsPage());
             },
           ),
           FTile(
-            prefixIcon: Icon(FIcons.settings2),
-            title: Text('Settings'),
-            onPress: () => navigator
-              ..back()
-              ..to(SettingsPage()),
+            prefix: Icon(FIcons.type),
+            title: Text('Patient Types'),
+            onPress: () {
+              // navigator
+              // ..back()
+              // ..to(PatientTypesPage());
+            },
           ),
           FTile(
-            prefixIcon: Icon(FIcons.calendar),
+            prefix: Icon(FIcons.pictureInPicture2),
+            title: Text('Pictures'),
+            onPress: () {
+              //   navigator
+              //     ..back()
+              //     ..to(const PicturesPage());
+            },
+          ),
+          FTile(
+            prefix: Icon(FIcons.settings2),
+            title: Text('Settings'),
+            onPress: () {
+              navigator
+                ..back()
+                ..to(SettingsPage());
+            },
+          ),
+          FTile(
+            prefix: Icon(FIcons.calendar),
             title: Text('Duty Roster'),
-            onPress: () => navigator
-              ..back()
-              ..to(const DutyRoster()),
+            onPress: () {
+              // navigator
+              // ..back()
+              // ..to(const DutyRoster());
+            },
           ),
         ],
       ),

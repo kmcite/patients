@@ -1,34 +1,36 @@
 import 'package:forui/forui.dart';
-import 'package:manager/dark/dark_repository.dart';
-import 'package:patients/domain/api/hospital_repository.dart';
-import 'package:patients/domain/api/patients_repository.dart';
-import 'package:patients/domain/models/hospital.dart';
+import 'package:patients/domain/api/settings_repository.dart';
 import 'package:patients/ui/app_drawer.dart';
-import 'package:patients/domain/api/navigator.dart';
-import 'package:patients/ui/investigations_page.dart';
-import 'package:patients/ui/patient_types/patient_types_page.dart';
-import 'package:patients/ui/pictures/pictures_page.dart';
-import 'package:patients/ui/settings_page.dart';
 import 'package:patients/ui/personal/user_page.dart';
 
 import '../../main.dart';
 
-void toggleThemeMode() {
-  darkRepository.state = !dark;
-}
+// Hospital get hospital => hospitalRepository.value;
+// int get count => patientsRepository.count();
 
-Hospital get hospital => hospitalRepository.value;
-int get count => patientsRepository.count();
+class HomeBloc extends Bloc {
+  late SettingsRepository settingsRepository = watch();
+  bool get dark => settingsRepository.dark;
 
-class HomePage extends UI {
+  int get patientsCount => 0;
+
   @override
-  void didMountWidget(BuildContext context) {
+  void initState() {
     FlutterNativeSplash.remove();
   }
 
+  void toggleThemeMode() {
+    settingsRepository.toggle();
+  }
+}
+
+class HomePage extends UI<HomeBloc> {
+  @override
+  HomeBloc create() => HomeBloc();
+
   const HomePage({super.key});
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, bloc) {
     return FScaffold(
       header: FHeader.nested(
         title: 'HOME'.text(),
@@ -48,8 +50,8 @@ class HomePage extends UI {
             },
           ),
           FButton.icon(
-            onPress: toggleThemeMode,
-            child: Icon(switch (dark) {
+            onPress: bloc.toggleThemeMode,
+            child: Icon(switch (bloc.dark) {
               false => FIcons.sun,
               true => FIcons.moon,
             }),
@@ -74,7 +76,7 @@ class HomePage extends UI {
                   children: [
                     Text('All attended patients'),
                     Text(
-                      '$count',
+                      '${bloc.patientsCount}',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -90,14 +92,14 @@ class HomePage extends UI {
                     Icon(
                       FIcons.hospital,
                     ).pad(),
-                    hospital.name.text().pad(),
+                    // hospital.name.text().pad(),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    hospital.city.text(),
-                    hospital.info.text(),
+                    // hospital.city.text(),
+                    // hospital.info.text(),
                   ],
                 ).pad(),
               ),
@@ -119,55 +121,57 @@ class HomePage extends UI {
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   children: [
-                    _buildActionButton(context, FIcons.user, 'Patients',
-                        () => navigator.to(PatientsPage())),
-                    _buildActionButton(
-                      context,
-                      FIcons.cassetteTape,
-                      'Types',
-                      () => navigator.to(PatientTypesPage()),
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.pictureInPicture,
-                      'Pictures',
-                      () => navigator.to(const PicturesPage()),
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.settings,
-                      'Settings',
-                      () => navigator.to(SettingsPage()),
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.calendar,
-                      'Duty Roster',
-                      () => navigator.to(const DutyRoster()),
-                    ),
+                    // _buildActionButton(context, FIcons.user, 'Patients',
+                    //     () => navigator.to(PatientsPage())),
+                    // _buildActionButton(
+                    //   context,
+                    //   FIcons.cassetteTape,
+                    //   'Types',
+                    //   () => navigator.to(PatientTypesPage()),
+                    // ),
+                    // _buildActionButton(
+                    //   context,
+                    //   FIcons.pictureInPicture,
+                    //   'Pictures',
+                    //   () => navigator.to(const PicturesPage()),
+                    // ),
+                    // _buildActionButton(
+                    //   context,
+                    //   FIcons.settings,
+                    //   'Settings',
+                    //   () => navigator.to(SettingsPage()),
+                    // ),
+                    // _buildActionButton(
+                    //   context,
+                    //   FIcons.calendar,
+                    //   'Duty Roster',
+                    //   () => navigator.to(const DutyRoster()),
+                    // ),
                     _buildActionButton(
                       context,
                       FIcons.file,
                       'Investigations',
-                      () => navigator.to(const InvestigationsPage()),
+                      () {
+                        // navigator.to(InvestigationsPage());
+                      },
                     ),
                   ],
                 ),
               ),
               SizedBox(height: 16),
-              FCard(
-                subtitle: Row(
-                  children: [
-                    Icon(
-                      FIcons.hospital,
-                    ).pad(),
-                    Text(
-                      'Upcoming Duties',
-                    ).pad(),
-                  ],
-                ),
-                child: UpcomingDuties(),
-              ),
+              // FCard(
+              //   subtitle: Row(
+              //     children: [
+              //       Icon(
+              //         FIcons.hospital,
+              //       ).pad(),
+              //       Text(
+              //         'Upcoming Duties',
+              //       ).pad(),
+              //     ],
+              //   ),
+              //   child: UpcomingDuties(),
+              // ),
             ],
           ),
         ),
@@ -194,3 +198,138 @@ class HomePage extends UI {
     );
   }
 }
+
+// // ignore_for_file: unused_local_variable, unused_element
+
+// import 'package:forui/forui.dart';
+// import 'package:patients/domain/api/navigator.dart';
+// import 'package:patients/domain/api/patients_repository.dart';
+// import 'package:patients/domain/api/settings_repository.dart';
+// import 'package:patients/domain/models/doctor.dart';
+// import 'package:patients/main.dart';
+// import 'package:patients/ui/add_patient_dialog.dart';
+// import 'package:patients/ui/patient_page.dart';
+// import 'package:patients/ui/patients_bloc.dart';
+// import 'package:patients/ui/search_page.dart';
+// import 'package:patients/ui/settings_page_2.dart';
+// import 'package:patients/domain/models/patient.dart';
+
+// mixin HomeBloc {
+//   final clinicName = settingsRepository.clinicName;
+//   int get numberOfTodaysPatients {
+//     final today = DateTime.now();
+//     final oneDayBefore = today.subtract(const Duration(days: 1));
+//     return patientsRepository.getAll().where(
+//       (pt) {
+//         return true;
+//         // pt.presentation.betweenDate(today, oneDayBefore);
+//       },
+//     ).length;
+//   }
+
+//   /// recently modified patients are patients which are
+//   /// modified recently and at least contains 5 patients.
+//   Iterable<Patient> get recentlyModifiedPatients {
+//     return patientsRepository.getAll().where(
+//       (pt) {
+//         // return pt.modifiedOn.lessOrEqualDate(
+//         //   DateTime.now(),
+//         // );
+//         return true;
+//       },
+//     ).take(5);
+//   }
+
+//   int get numberOfRecentlyModifiedPatients => recentlyModifiedPatients.length;
+
+//   Doctor? onDutyDoctor() {
+//     return null;
+
+//     // return doctorsRepository.get(authenticationRepository.authentication().id);
+//   }
+// }
+
+// class HomePage extends UI with HomeBloc {
+//   HomePage({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return FScaffold(
+//       header: FHeader(
+//         title: const Text('Home'),
+//         suffixes: [
+//           FButton.icon(
+//             onPress: () => navigator.to(SettingsPage()),
+//             child: Icon(FIcons.settings),
+//           ),
+//         ],
+//       ),
+//       child: ListView(
+//         children: [
+//           FLabel(
+//             axis: Axis.vertical,
+//             label: clinicName().text(),
+//             description: '$numberOfTodaysPatients patients served today'.text(),
+//             child: 'emeregncy and trauma center'.text(),
+//           ).pad(),
+//           FLabel(
+//             axis: Axis.vertical,
+//             label: Text('quick actions'),
+//             child: Row(
+//               children: [
+//                 FButton.icon(
+//                   onPress: () async {
+//                     final patient = await navigator.toDialog<Patient>(
+//                       AddPatientDialog(),
+//                     );
+//                     if (patient != null) patientsBloc.put(patient);
+//                   },
+//                   child: Icon(FIcons.plus),
+//                 ).pad(),
+//                 FButton.icon(
+//                   onPress: () => navigator.to(SearchPage()),
+//                   child: Icon(FIcons.search),
+//                 ).pad(),
+//                 FButton.icon(
+//                   onPress: () => navigator.to(PatientsPage()),
+//                   child: Icon(FIcons.list),
+//                 ).pad(),
+//               ],
+//             ),
+//           ).pad(),
+//           FLabel(
+//             axis: Axis.vertical,
+//             label: Text('Total Patients'),
+//             description:
+//                 '${onDutyDoctor()?.name}, ${onDutyDoctor()?.email}'.text(),
+//             child: '${patientsBloc.patients.length}'.text(),
+//           ).pad(),
+//           FTileGroup(
+//             // maxHeight: 630,
+//             label: 'recent modifications'.text(),
+//             description:
+//                 '$numberOfRecentlyModifiedPatients recently modified.'.text(),
+//             children: recentlyModifiedPatients.map(
+//               (patient) {
+//                 return FTile(
+//                   onPress: () {
+//                     navigator.to(
+//                       PatientPage(patient.id),
+//                     );
+//                   },
+//                   title: patient.name.text(),
+//                 );
+//               },
+//             ).toList(),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// extension on DateTime {
+//   bool lessOrEqualDate(DateTime dateTime) =>
+//       isBefore(dateTime) || isAtSameMomentAs(dateTime);
+//   bool betweenDate(DateTime today, DateTime oneDayBefore) =>
+//       isAfter(oneDayBefore) && isBefore(today);
+// }

@@ -1,34 +1,34 @@
-import 'package:file_picker/file_picker.dart';
-import 'package:patients/domain/api/imageries_repository.dart';
-import 'package:patients/domain/models/patient.dart';
-import 'package:states_rebuilder/states_rebuilder.dart';
+// import 'package:file_picker/file_picker.dart';
+// import 'package:patients/domain/api/imageries_repository.dart';
+// import 'package:patients/domain/models/patient.dart';
+// import 'package:states_rebuilder/states_rebuilder.dart';
 
-final imageriesBloc = ImageriesBloc();
+// final imageriesBloc = ImageriesBloc();
 
-class ImageriesBloc {
-  final imageriesRM = RM.inject(() => imageriesRepository.getAll());
+// class ImageriesBloc {
+//   final imageriesRM = RM.inject(() => imageriesRepository.getAll());
 
-  bool get loading => imageriesRM.isWaiting;
-  List<Imagery> get imageries => imageriesRM.state;
+//   bool get loading => imageriesRM.isWaiting;
+//   List<Imagery> get imageries => imageriesRM.state;
 
-  void put(Imagery imagery) {
-    imageriesRepository.put(imagery);
-    imageriesRM.state = imageriesRepository.getAll();
-  }
+//   void put(Imagery imagery) {
+//     imageriesRepository.put(imagery);
+//     imageriesRM.state = imageriesRepository.getAll();
+//   }
 
-  void remove(int id) {
-    imageriesRepository.remove(id);
-    imageriesRM.state = imageriesRepository.getAll();
-  }
+//   void remove(int id) {
+//     imageriesRepository.remove(id);
+//     imageriesRM.state = imageriesRepository.getAll();
+//   }
 
-  Future<void> pickAndSave() async {
-    final pickerResult = await FilePicker.platform.pickFiles();
-    if (pickerResult != null) {
-      final pickedPath = pickerResult.files.first.path;
+//   Future<void> pickAndSave() async {
+//     final pickerResult = await FilePicker.platform.pickFiles();
+//     if (pickerResult != null) {
+//       final pickedPath = pickerResult.files.first.path;
 
-      if (pickedPath != null) {
-        // put(Imagery()..path = pickedPath);
-      }
-    }
-  }
-}
+//       if (pickedPath != null) {
+//         // put(Imagery()..path = pickedPath);
+//       }
+//     }
+//   }
+// }

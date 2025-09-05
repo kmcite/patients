@@ -1,10 +1,11 @@
-import 'package:manager/model.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:patients/domain/models/patient.dart';
 
 @Entity()
-class Doctor extends Model {
-  @override
+class Doctor
+//  extends Model
+{
+  // @override
   @Id()
   int id = 0;
   String name = '';

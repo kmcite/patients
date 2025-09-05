@@ -1,13 +1,13 @@
-import '../../main.dart';
+import 'package:patients/utils/architecture.dart';
+import 'package:patients/utils/crud.dart';
+
 import '../models/patient.dart';
 import '../models/patient_types.dart';
 
-final patientsRepository = PatientsRepository();
-final patientTypesRepository = PatientTypesRepository();
+class PatientTypesRepository extends Repository<PatientType>
+    with CRUD<PatientType> {}
 
-class PatientTypesRepository extends CRUD<PatientType> {}
-
-class PatientsRepository extends CRUD<Patient> {
+class PatientsRepository extends Repository<Patient> with CRUD<Patient> {
   Iterable<Patient> searchByEmail(String email) {
     return getAll().where(
       (pt) {

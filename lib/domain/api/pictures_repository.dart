@@ -1,6 +1,5 @@
-import 'package:manager/manager.dart' show CRUD;
 import 'package:patients/domain/models/picture.dart';
+import 'package:patients/main.dart';
+import 'package:patients/utils/crud.dart';
 
-class PicturesRepository extends CRUD<Picture> {}
-
-final PicturesRepository picturesRepository = PicturesRepository();
+class PicturesRepository extends Repository<Picture> with CRUD<Picture> {}

@@ -1,6 +1,6 @@
 import 'package:patients/main.dart';
 
-class Hospital extends Model {
+class Hospital {
   final String name;
   final String city;
   final String info;
@@ -22,7 +22,6 @@ class Hospital extends Model {
     );
   }
 
-  @override
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'name': name,
@@ -44,6 +43,5 @@ class Hospital extends Model {
     );
   }
 
-  @override
   int id = 0;
 }

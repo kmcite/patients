@@ -1,7 +1,12 @@
 import 'package:forui/theme.dart';
-import 'package:manager/dark/dark_repository.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart';
+import 'package:patients/domain/api/hospital_repository.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/api/settings_repository.dart';
+import 'package:patients/domain/api/user_repository.dart';
 import 'package:patients/main.dart';
-import 'package:patients/domain/api/navigator.dart';
+export 'package:patients/utils/architecture.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 export 'dart:convert';
@@ -12,7 +17,9 @@ export 'package:flutter/material.dart' hide Action;
 export 'package:flutter_native_splash/flutter_native_splash.dart';
 export 'package:freezed_annotation/freezed_annotation.dart';
 export 'package:intl/intl.dart' hide TextDirection;
-export 'package:manager/manager.dart';
+export 'package:manager/manager.dart'
+    hide Bloc, UI, Repository, logging, repositories, services;
+
 export 'package:objectbox/objectbox.dart';
 export 'package:path_provider/path_provider.dart';
 export 'package:patients/domain/models/user.dart';
@@ -24,31 +31,42 @@ export 'package:patients/ui/personal/roster_table.dart';
 export 'package:patients/ui/personal/table_cell_builder.dart';
 export 'package:patients/ui/personal/upcoming_duties.dart';
 export 'package:patients/domain/api/upcoming_duty_finder.dart';
-export 'package:states_rebuilder/states_rebuilder.dart';
 export 'package:uuid/uuid.dart';
 export 'ui/patients/patients/patients_page.dart';
-
-late SharedPreferences prefs;
 
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(
     widgetsBinding: widgetsBinding,
   );
-  prefs = await SharedPreferences.getInstance();
-  manager(
-    MyApp(),
-    openStore: openStore,
-  );
+  final appInfo = await PackageInfo.fromPlatform();
+  final path = await getApplicationDocumentsDirectory();
+  find<SharedPreferences>(await SharedPreferences.getInstance());
+  final store = await openStore(directory: join(path.path, appInfo.appName));
+  find<Store>(store);
+  repository(SettingsRepository());
+  repository(UserRepository());
+  repository(PatientsRepository());
+  repository(PatientTypesRepository());
+  repository(HospitalRepository());
+
+  runApp(App());
 }
 
-bool get dark => darkRepository.state;
-ThemeMode get themeMode => dark ? ThemeMode.dark : ThemeMode.light;
+class AppBloc extends Bloc {
+  late final SettingsRepository settingsRepository = watch();
 
-class MyApp extends UI {
-  const MyApp({super.key});
+  bool get dark => settingsRepository.dark;
+  ThemeMode get themeMode => dark ? ThemeMode.dark : ThemeMode.light;
+}
+
+class App extends UI<AppBloc> {
+  const App({super.key});
   @override
-  Widget build(BuildContext context) {
+  AppBloc create() => AppBloc();
+
+  @override
+  Widget build(context, controller) {
     return MaterialApp(
       navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
@@ -57,13 +75,11 @@ class MyApp extends UI {
       darkTheme: ThemeData.dark(),
       builder: (context, child) {
         return FTheme(
-          data: dark ? FThemes.orange.dark : FThemes.violet.light,
+          data: controller.dark ? FThemes.orange.dark : FThemes.violet.light,
           child: child!,
         );
       },
-      themeMode: themeMode,
+      themeMode: controller.themeMode,
     );
   }
 }
-
-typedef UI = ReactiveStatelessWidget;

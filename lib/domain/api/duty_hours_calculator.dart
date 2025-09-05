@@ -1,16 +1,14 @@
-import '../../main.dart';
 import '../models/duty.dart';
-
-final dutyHoursCalculator = DutyHoursCalculatorUseCase();
 
 class DutyHoursCalculatorUseCase {
   Duration calculateTotalDutyHours() {
     Duration totalDutyDuration = Duration.zero;
-    for (final duty in dutiesRepository.getAll()) {
-      int shiftDurationHours = getShiftDuration(duty.shiftType());
-      Duration dutyShiftDuration = Duration(hours: shiftDurationHours);
-      totalDutyDuration += dutyShiftDuration;
-    }
+    // for (final duty in dutiesRepository.getAll()) {
+    //   int shiftDurationHours = getShiftDuration(duty.shiftType());
+    //   Duration dutyShiftDuration = Duration(hours: shiftDurationHours);
+    //   totalDutyDuration += dutyShiftDuration;
+    // }
+    /// TODO: Implement ???
     return totalDutyDuration;
   }
 

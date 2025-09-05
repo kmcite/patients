@@ -1,118 +1,122 @@
 import 'package:forui/forui.dart';
-import 'package:manager/dark/dark_repository.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
-import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/domain/api/settings_repository.dart';
+import 'package:patients/domain/models/hospital.dart';
 import 'package:patients/main.dart';
+import 'package:patients/ui/add_doctor_dialog.dart';
 
-const double paddingValue = 16.0;
-const double borderRadiusValue = 12.0;
-const double iconSize = 24.0;
+import '../domain/api/authentication_repository.dart';
 
-void changeHospitalName(String name) {
-  hospitalRepository(hospital.copyWith(name: name));
+class SettingsBloc extends Bloc {
+  late final SettingsRepository settingsRepository = watch();
+  late final HospitalRepository hospitalRepository = watch();
+
+  static const double paddingValue = 16.0;
+  static const double borderRadiusValue = 12.0;
+  static const double iconSize = 24.0;
+
+  Hospital get hospital => hospitalRepository();
+
+  void changeHospitalName(String name) {
+    hospitalRepository(hospital.copyWith(name: name));
+  }
+
+  void changeHospitalCity(String name) {
+    hospitalRepository(hospital.copyWith(city: name));
+  }
+
+  void changeHospitalInfo(String name) {
+    hospitalRepository(hospital.copyWith(info: name));
+  }
+
+  // void restoreInvestigations() {}
+  // void toggleThemeMode() {
+  //   // darkRepository.state = !dark;
+  // }
+  void logout() {
+    // authentication = Authentication();
+    // navigator.toAndRemoveUntil(LoginPage());
+  }
+
+  // final authentication = authenticationRepository.authentication;
+  String get clinicName => settingsRepository.clinicName;
+  ThemeMode get themeMode => settingsRepository.themeModeToggler();
+
+  bool get dark => settingsRepository.dark;
+
+  void setThemeMode(ThemeMode mode) {
+    settingsRepository.setThemeMode(mode);
+  }
 }
 
-void changeHospitalCity(String name) {
-  hospitalRepository(hospital.copyWith(city: name));
-}
-
-void changeHospitalInfo(String name) {
-  hospitalRepository(hospital.copyWith(info: name));
-}
-
-void restoreInvestigations() {}
-void toggleThemeMode() {
-  darkRepository.state = !dark;
-}
-
-class SettingsPage extends UI {
-  const SettingsPage({super.key});
-
+class SettingsPage extends UI<SettingsBloc> {
   @override
-  Widget build(BuildContext context) {
+  SettingsBloc create() => SettingsBloc();
+
+  const SettingsPage({super.key});
+  @override
+  Widget build(context, bloc) {
     return FScaffold(
       header: FHeader.nested(
+        title: const Text('Settings'),
         prefixes: [
           FButton.icon(
-            child: Icon(FIcons.x),
             onPress: () => navigator.back(),
+            child: Icon(FIcons.arrowLeft),
           ),
         ],
-        title: Text('Settings'),
+        suffixes: [
+          FButton.icon(
+            onPress: () => bloc.logout(),
+            child: Icon(FIcons.logOut),
+          )
+        ],
       ),
       child: ListView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(paddingValue),
         children: [
-          _buildThemeToggleButton(context),
-          const SizedBox(height: paddingValue),
-          _buildInvestigationsButton(context),
-          const SizedBox(height: paddingValue),
-          _buildHospitalTile(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHospitalTile(BuildContext context) {
-    return Column(
-      children: [
-        Text('HOSPITAL INFORMATIONS'),
-        FTextField(
-          label: Text('NAME'),
-          initialText: hospital.name,
-          onChange: changeHospitalName,
-          maxLength: 4,
-        ),
-        FTextField(
-          label: Text('CITY'),
-          initialText: hospital.city,
-          onChange: changeHospitalCity,
-          maxLength: 20,
-        ),
-        FTextField(
-          label: Text('INFORMATIONS'),
-          initialText: hospital.info,
-          onChange: changeHospitalInfo,
-          minLines: 2,
-          maxLength: 50,
-          maxLines: 4,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildThemeToggleButton(BuildContext context) {
-    return FButton(
-      onPress: toggleThemeMode,
-      child: Row(
-        children: [
-          Icon(
-            switch (themeMode) {
-              ThemeMode.system => FIcons.settings,
-              ThemeMode.light => FIcons.sun,
-              ThemeMode.dark => FIcons.moon,
-            },
+          FLabel(
+            axis: Axis.vertical,
+            description: FTileGroup.builder(
+              divider: FItemDivider.full,
+              count: ThemeMode.values.length,
+              tileBuilder: (context, index) {
+                final mode = ThemeMode.values.elementAt(index);
+                return FTile(
+                  title: mode.name.toUpperCase().text(),
+                  onPress: () {
+                    bloc.setThemeMode(mode);
+                  },
+                );
+              },
+            ),
+            child: FTile(
+              title: (bloc.themeMode.name.toUpperCase()).text(),
+            ),
+          ),
+          FDivider(),
+          FTextField(
+            label: Text('Clinic / Hospital Name'),
+            initialText: bloc.hospital.name,
+            onChange: bloc.changeHospitalName,
           ).pad(),
-          Text(themeMode.name.toUpperCase()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInvestigationsButton(BuildContext context) {
-    return FButton(
-      onPress:
-          // investigationsRepository.getAll().toSet().containsAll([])
-          //     ? null
-          //     :
-          () {
-        restoreInvestigations();
-      },
-      child: Row(
-        children: [
-          Icon(FIcons.flaskRound).pad(),
-          Text('RESTORE INVESTIGATIONS'),
+          FDivider(),
+          FButton(
+            onPress: () => navigator.toDialog(AddDoctorDialog()),
+            child: "Create a Doctor".text(),
+          ).pad(),
+          FDivider(),
+          FBadge(
+            child: authentication.name.text(),
+          ).pad(),
+          FBadge(
+            child: authentication.userType.text(),
+          ).pad(),
+          FBadge(
+            child: authentication.email.text(),
+          ).pad(),
+          FBadge(
+            child: authentication.password.text(),
+          ).pad(),
         ],
       ),
     );

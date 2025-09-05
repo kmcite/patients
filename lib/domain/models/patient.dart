@@ -5,8 +5,7 @@ import 'patient_types.dart';
 import 'picture.dart';
 
 @Entity()
-class Patient extends Model {
-  @override
+class Patient {
   @Id()
   int id = 0;
   String name = '';
@@ -88,8 +87,7 @@ class Address {
 }
 
 @Entity()
-class Imagery extends Model {
-  @override
+class Imagery {
   @Id()
   int id = 0;
   String path = '';

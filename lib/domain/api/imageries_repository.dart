@@ -1,6 +1,5 @@
-import 'package:manager/manager.dart';
 import 'package:patients/domain/models/patient.dart';
+import 'package:patients/utils/architecture.dart';
+import 'package:patients/utils/crud.dart';
 
-final imageriesRepository = ImageriesRepository();
-
-class ImageriesRepository extends CRUD<Imagery> {}
+class ImageriesRepository extends Repository<Imagery> with CRUD<Imagery> {}

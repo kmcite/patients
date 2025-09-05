@@ -1,8 +1,7 @@
 import '../../main.dart';
 
 @Entity()
-class PatientType extends Model {
-  @override
+class PatientType {
   @Id()
   int id = 0;
   String type = '';

@@ -1,6 +1,5 @@
-import 'package:manager/manager.dart';
 import 'package:patients/domain/models/duty.dart';
+import 'package:patients/main.dart';
+import 'package:patients/utils/crud.dart';
 
-class DutiesRepository extends CRUD<Duty> {}
-
-final dutiesRepository = DutiesRepository();
+class DutiesRepository extends Repository<Duty> with CRUD<Duty> {}

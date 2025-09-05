@@ -1,25 +1,24 @@
+import 'package:patients/domain/api/user_repository.dart';
 import 'package:patients/main.dart';
 
-import '../models/settings.dart';
+class SettingsRepository extends Repository {
+  var themeModeToggler = Toggler(ThemeMode.values);
+  bool get dark => themeModeToggler() == ThemeMode.dark ? true : false;
 
-final settingsRepository = SettingsRepository();
+  String clinicName = 'Adn Opd';
 
-class SettingsRepository {
-  late final settingsRM = RM.inject(
-    () => Settings(),
-  );
-
-  Settings settings([Settings? settings]) {
-    if (settings != null) {
-      settingsRM
-        ..state = settings
-        ..notify();
-    }
-    return settingsRM.state;
+  void toggle() {
+    themeModeToggler = themeModeToggler..next();
+    notifyListeners();
   }
 
-  String clinicName([String? value]) {
-    if (value != null) settings(settings()..clinicName = value);
-    return settings().clinicName;
+  void setThemeMode(ThemeMode value) {
+    themeModeToggler.value = value;
+    notifyListeners();
+  }
+
+  void setClinicName(String value) {
+    clinicName = value;
+    notifyListeners();
   }
 }

@@ -3,7 +3,13 @@ import 'package:patients/main.dart';
 
 final HospitalRepository hospitalRepository = HospitalRepository();
 
-class HospitalRepository extends Repository<Hospital> {
-  @override
-  Hospital get initialState => Hospital();
+class HospitalRepository extends Repository {
+  Hospital hospital = Hospital();
+  Hospital call([Hospital? hosp]) {
+    if (hosp != null) {
+      hospital = hosp;
+      notifyListeners();
+    }
+    return hospital;
+  }
 }
