@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
 import 'package:patients/domain/api/authentication_repository.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/settings_repository.dart';
@@ -48,7 +47,7 @@ class SettingsBloc extends Bloc {
   String get userType => authRepository.currentUser?.userType.name ?? 'Unknown';
 }
 
-class SettingsPage extends BlocWidget<SettingsBloc> {
+class SettingsPage extends Feature<SettingsBloc> {
   const SettingsPage({super.key});
 
   @override
@@ -56,96 +55,218 @@ class SettingsPage extends BlocWidget<SettingsBloc> {
 
   @override
   Widget build(BuildContext context, SettingsBloc bloc) {
-    return FScaffold(
-      header: FHeader.nested(
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
         title: const Text('Settings'),
-        prefixes: [
-          FButton.icon(
-            onPress: () => Navigator.of(context).pop(),
-            child: const Icon(FIcons.arrowLeft),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: bloc.logout,
+            tooltip: 'Logout',
           ),
-        ],
-        suffixes: [
-          FButton.icon(
-            onPress: bloc.logout,
-            child: const Icon(FIcons.logOut),
-          )
         ],
       ),
-      child: ListView(
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: [
-          // Theme Mode Selection
-          FLabel(
-            axis: Axis.vertical,
-            label: const Text('Theme Mode'),
-            description: FTileGroup.builder(
-              divider: FItemDivider.full,
-              count: ThemeMode.values.length,
-              tileBuilder: (context, index) {
-                final mode = ThemeMode.values.elementAt(index);
-                return FTile(
-                  title: Text(mode.name.toUpperCase()),
-                  onPress: () => bloc.setThemeMode(mode),
-                );
-              },
-            ),
-            child: FTile(
-              title: Text('Current: ${bloc.themeMode.name.toUpperCase()}'),
-            ),
-          ),
-
-          const FDivider(),
-
-          // Hospital Settings
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FTextField(
-              label: const Text('Clinic / Hospital Name'),
-              initialText: bloc.hospital.name,
-              onChange: bloc.changeHospitalName,
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FTextField(
-              label: const Text('Hospital City'),
-              initialText: bloc.hospital.city,
-              onChange: bloc.changeHospitalCity,
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: FTextField(
-              label: const Text('Hospital Info'),
-              initialText: bloc.hospital.info,
-              onChange: bloc.changeHospitalInfo,
-            ),
-          ),
-
-          const FDivider(),
-
-          // User Information
-          if (bloc.isAuthenticated) ...[
-            Padding(
+          // Theme Settings Card
+          Card(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('User Information',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.palette,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Appearance',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Theme Mode',
+                    style: theme.textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 8),
-                  FBadge(child: Text('Name: ${bloc.userName}')),
-                  const SizedBox(height: 8),
-                  FBadge(child: Text('Email: ${bloc.userEmail}')),
-                  const SizedBox(height: 8),
-                  FBadge(child: Text('Type: ${bloc.userType}')),
+                  ...ThemeMode.values.map((mode) => RadioListTile<ThemeMode>(
+                        title: Text(_getThemeModeLabel(mode)),
+                        value: mode,
+                        groupValue: bloc.themeMode,
+                        onChanged: (value) {
+                          if (value != null) bloc.setThemeMode(value);
+                        },
+                        contentPadding: EdgeInsets.zero,
+                      )),
                 ],
               ),
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Hospital Settings Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_hospital,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Hospital Information',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: bloc.hospital.name,
+                    decoration: const InputDecoration(
+                      labelText: 'Hospital / Clinic Name',
+                      prefixIcon: Icon(Icons.business),
+                    ),
+                    onChanged: bloc.changeHospitalName,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: bloc.hospital.city,
+                    decoration: const InputDecoration(
+                      labelText: 'City',
+                      prefixIcon: Icon(Icons.location_city),
+                    ),
+                    onChanged: bloc.changeHospitalCity,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: bloc.hospital.info,
+                    decoration: const InputDecoration(
+                      labelText: 'Additional Information',
+                      prefixIcon: Icon(Icons.info),
+                    ),
+                    maxLines: 3,
+                    onChanged: bloc.changeHospitalInfo,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // User Information Card
+          if (bloc.isAuthenticated) ...[
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.account_circle,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'User Information',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInfoRow(context, 'Name', bloc.userName, Icons.person),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(
+                        context, 'Email', bloc.userEmail, Icons.email),
+                    const SizedBox(height: 8),
+                    _buildInfoRow(context, 'Role', bloc.userType.toUpperCase(),
+                        Icons.badge),
+                  ],
+                ),
+              ),
+            ),
           ],
+
+          const SizedBox(height: 32),
+
+          // Logout Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: bloc.logout,
+              icon: const Icon(Icons.logout),
+              label: const Text('Sign Out'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+                foregroundColor: theme.colorScheme.onError,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getThemeModeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return 'System Default';
+      case ThemeMode.light:
+        return 'Light Mode';
+      case ThemeMode.dark:
+        return 'Dark Mode';
+    }
+  }
+
+  Widget _buildInfoRow(
+      BuildContext context, String label, String value, IconData icon) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Text(
+            '$label: ',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium,
+            ),
+          ),
         ],
       ),
     );

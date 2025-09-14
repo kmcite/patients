@@ -1,10 +1,16 @@
-import 'package:forui/theme.dart';
+// Removed ForUI dependency
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:patients/domain/api/authentication_repository.dart';
+import 'package:patients/domain/api/duties_repository.dart';
 import 'package:patients/domain/api/hospital_repository.dart';
+import 'package:patients/domain/api/imageries_repository.dart';
+import 'package:patients/domain/api/investigations.dart';
+import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/api/pictures_repository.dart';
 import 'package:patients/domain/api/settings_repository.dart';
+import 'package:patients/domain/api/upcoming_duty_finder.dart';
 import 'package:patients/domain/api/user_repository.dart';
 import 'package:patients/objectbox.g.dart';
 import 'package:patients/ui/app_state_bloc.dart';
@@ -39,6 +45,7 @@ export 'package:patients/ui/personal/upcoming_duties.dart';
 export 'package:patients/domain/api/upcoming_duty_finder.dart';
 export 'package:uuid/uuid.dart';
 export 'ui/patients/patients/patients_page.dart';
+export 'package:patients/domain/api/navigator.dart';
 
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -58,11 +65,16 @@ void main() async {
   register<PatientsRepository>(PatientsRepository());
   register<PatientTypesRepository>(PatientTypesRepository());
   register<HospitalRepository>(HospitalRepository());
+  register<DutiesRepository>(DutiesRepository());
+  register<InvestigationsRepository>(InvestigationsRepository());
+  register<ImageriesRepository>(ImageriesRepository());
+  register<PicturesRepository>(PicturesRepository());
+  register<UpcomingDutyFinder>(UpcomingDutyFinder());
 
   runApp(const App());
 }
 
-class App extends BlocWidget<AppStateBloc> {
+class App extends Feature<AppStateBloc> {
   const App({super.key});
 
   @override
@@ -71,16 +83,85 @@ class App extends BlocWidget<AppStateBloc> {
   @override
   Widget build(BuildContext context, AppStateBloc bloc) {
     return MaterialApp(
+      navigatorKey: navigator.navigatorKey,
       debugShowCheckedModeBanner: false,
+      title: 'Patients Management System',
       home: bloc.isAuthenticated ? const HomePage() : const LoginPage(),
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      builder: (context, child) {
-        return FTheme(
-          data: FThemes.violet.light, // Simplified for now
-          child: child!,
-        );
-      },
+      theme: _buildLightTheme(),
+      darkTheme: _buildDarkTheme(),
+      themeMode: ThemeMode.system,
+    );
+  }
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF6750A4), // Material Purple
+        brightness: Brightness.light,
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: const Color(0xFF6750A4),
+        brightness: Brightness.dark,
+      ),
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        elevation: 0,
+        scrolledUnderElevation: 1,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
     );
   }
 }

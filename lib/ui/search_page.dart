@@ -1,65 +1,87 @@
-// import 'package:forui/forui.dart';
-// import 'package:patients/domain/api/patients_repository.dart';
-// import 'package:patients/domain/models/patient.dart';
-// import 'package:states_rebuilder/states_rebuilder.dart';
+import 'package:flutter/material.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient.dart';
+import 'package:patients/ui/patients/patient_tile_2.dart';
+import 'package:patients/utils/architecture.dart';
 
-// import '../main.dart';
-// import 'patient_page.dart';
+class SearchBloc extends Bloc {
+  late final PatientsRepository patientsRepository;
+  final searchController = TextEditingController();
+  List<Patient> searchResults = [];
 
-// final searchRM = SearchBloc();
+  @override
+  void initState() {
+    patientsRepository = watch<PatientsRepository>();
+    searchController.addListener(_onSearchChanged);
+  }
 
-// class SearchBloc {
-//   final searchRM = RM.injectTextEditing(text: '');
+  void _onSearchChanged() {
+    final query = searchController.text.toLowerCase();
+    if (query.isEmpty) {
+      searchResults = [];
+    } else {
+      final allPatients = patientsRepository.items.data ?? [];
+      searchResults = allPatients.where((patient) {
+        return patient.name.toLowerCase().contains(query) ||
+            patient.email.toLowerCase().contains(query) ||
+            (patient.contact.target?.mnp.contains(query) == true);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
-//   TextEditingController get controller => searchRM.controller;
-//   Iterable<Patient> get queriedPatients {
-//     return patientsRepository.searchByName(controller.text);
-//   }
-// }
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+}
 
-// class SearchPage extends UI {
-//   const SearchPage({super.key});
+class SearchPage extends Feature<SearchBloc> {
+  const SearchPage({super.key});
 
-//   @override
-//   Widget build(BuildContext context, bloc) {
-//     return FScaffold(
-//       header: FHeader(
-//         title: 'Search'.text(),
-//         suffixes: [
-//           FHeaderAction.back(
-//             onPress: navigator.back,
-//           ),
-//         ],
-//       ),
-//       child: Column(
-//         children: [
-//           FTextField(
-//             controller: searchRM.searchRM.controller,
-//           ).pad(),
-//           Expanded(
-//             child: searchRM.searchRM.text.isEmpty
-//                 ? 'No results'.text().center()
-//                 : ListView.builder(
-//                     itemCount: searchRM.queriedPatients.length,
-//                     itemBuilder: (context, index) {
-//                       final qpt = searchRM.queriedPatients.elementAt(index);
-//                       return FTile(
-//                         title: qpt.name.text(),
-//                         subtitle: qpt.complaints.text(),
-//                         onPress: () => navigator.to(
-//                           PatientPage(qpt.id),
-//                         ),
-//                       ).pad();
-//                     },
-//                   ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
+  @override
+  SearchBloc createBloc() => SearchBloc();
 
-//   @override
-//   Bloc create() {
-//     throw UnimplementedError();
-//   }
-// }
+  @override
+  Widget build(BuildContext context, SearchBloc bloc) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search Patients'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: bloc.searchController,
+              decoration: const InputDecoration(
+                labelText: 'Search patients...',
+                hintText: 'Enter name, email, or phone',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Expanded(
+            child: bloc.searchResults.isEmpty
+                ? Center(
+                    child: Text(
+                      bloc.searchController.text.isEmpty
+                          ? 'Enter search terms to find patients'
+                          : 'No patients found',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: bloc.searchResults.length,
+                    itemBuilder: (context, index) {
+                      return PatientTile(patient: bloc.searchResults[index]);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}

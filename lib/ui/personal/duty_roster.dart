@@ -1,75 +1,104 @@
-// import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:patients/domain/api/duties_repository.dart';
+import 'package:patients/domain/api/navigator.dart';
+import 'package:patients/utils/architecture.dart';
+import 'roster_table.dart';
 
-// import 'package:forui/forui.dart';
-// import 'package:patients/domain/api/navigator.dart';
+class DutyRosterBloc extends Bloc {
+  late final DutiesRepository dutiesRepository;
 
-// import '../../main.dart';
+  @override
+  void initState() {
+    dutiesRepository = watch<DutiesRepository>();
+  }
 
-// class _DutyRoster extends Bloc<void, int> {
-//   StreamSubscription? _subscription;
-//   _DutyRoster() {
-//     _subscription = dutiesRepository.watch().listen(
-//       (duties) {
-//         emit(initialState);
-//       },
-//     );
-//   }
-//   @override
-//   int get initialState => dutyHoursCalculator.calculateTotalDutyHours().inHours;
-//   @override
-//   void dispose() {
-//     _subscription?.cancel();
-//     super.dispose();
-//   }
-// }
+  int get totalHours {
+    // TODO: Implement duty hours calculation
+    return 40; // Placeholder
+  }
+}
 
-// late _DutyRoster _dutyRoster;
+class DutyRoster extends Feature<DutyRosterBloc> {
+  const DutyRoster({super.key});
 
-// class DutyRoster extends UI {
-//   const DutyRoster({super.key});
-//   @override
-//   void didMountWidget(BuildContext context) {
-//     super.didMountWidget(context);
-//     _dutyRoster = _DutyRoster();
-//   }
+  @override
+  DutyRosterBloc createBloc() => DutyRosterBloc();
 
-//   @override
-//   void didUnmountWidget() {
-//     _dutyRoster.dispose();
-//     super.didUnmountWidget();
-//   }
+  @override
+  Widget build(BuildContext context, DutyRosterBloc bloc) {
+    final theme = Theme.of(context);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return FScaffold(
-//       header: FHeader.nested(
-//         prefixes: [
-//           FButton.icon(
-//             onPress: navigator.back,
-//             child: Icon(FIcons.x),
-//           ),
-//         ],
-//         title: const Text(
-//           'ROSTER',
-//           style: TextStyle(
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//       ),
-//       child: ListView(
-//         physics: const BouncingScrollPhysics(),
-//         children: [
-//           Text(
-//             "${_dutyRoster()} Hours",
-//             textScaleFactor: 3,
-//             style: TextStyle(
-//               fontWeight: FontWeight.bold,
-//             ),
-//             textAlign: TextAlign.center,
-//           ).pad().pad(),
-//           RosterTable(),
-//         ],
-//       ),
-//     );
-//   }
-// }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Duty Roster'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: navigator.back,
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          // Total Hours Card
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.schedule,
+                    size: 48,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Total Weekly Hours',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "${bloc.totalHours}",
+                    style: theme.textTheme.displayMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  Text(
+                    'Hours',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Roster Table
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Weekly Schedule',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const RosterTable(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

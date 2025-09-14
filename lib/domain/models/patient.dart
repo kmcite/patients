@@ -35,10 +35,35 @@ class Patient {
   bool attended = false;
   bool editing = false;
   bool gender = true; // true male
-  String createdAt = '';
+  @Property(type: PropertyType.date)
+  DateTime createdAt = DateTime.now();
+
+  @Property(type: PropertyType.date)
+  DateTime? lastVisitDate;
+
+  String emergencyContactName = '';
+  String emergencyContactPhone = '';
+  String emergencyContactRelation = '';
+
+  String bloodGroup = ''; // A+, B-, O+, etc.
+  String allergies = '';
+  String chronicConditions = '';
+  String currentMedications = '';
+
+  String insuranceProvider = '';
+  String insuranceNumber = '';
+
   final investigations = ToMany<Investigation>();
+
+  int outComeStatusIndex = OutComeStatus.emergency.index;
+
   @Transient()
-  OutComeStatus outComeStatus = OutComeStatus.emergency;
+  OutComeStatus get outComeStatus => OutComeStatus.values[outComeStatusIndex];
+
+  @Transient()
+  set outComeStatus(OutComeStatus value) {
+    outComeStatusIndex = value.index;
+  }
 
   @Transient()
   String get date {

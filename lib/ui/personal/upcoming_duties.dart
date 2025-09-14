@@ -1,94 +1,101 @@
-// import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:patients/domain/api/duties_repository.dart';
+import 'package:patients/domain/api/upcoming_duty_finder.dart';
+import 'package:patients/domain/models/duty.dart';
+import 'package:patients/utils/architecture.dart';
 
-// import 'package:forui/forui.dart';
-// import 'package:patients/domain/models/duty.dart';
+class UpcomingDutiesBloc extends Bloc {
+  late final DutiesRepository dutiesRepository;
+  late final UpcomingDutyFinder upcomingDutyFinder;
 
-// import '../../main.dart';
+  @override
+  void initState() {
+    dutiesRepository = watch<DutiesRepository>();
+    upcomingDutyFinder = get<UpcomingDutyFinder>();
+  }
 
-// typedef _UpcomingDutiesState = ({Duty? duty, List<Duty> duties});
+  List<Duty> get duties =>
+      dutiesRepository.duties.hasData ? dutiesRepository.duties.data! : [];
 
-// class _UpcomingDuties extends Bloc<void, _UpcomingDutiesState> {
-//   StreamSubscription? _subscription;
+  Duty? get upcomingDuty {
+    if (duties.isEmpty) return null;
+    return upcomingDutyFinder.findNextRosterEntry(DateTime.now(), duties);
+  }
+}
 
-//   _UpcomingDuties() {
-//     _subscription = dutiesRepository.watch().listen(
-//       (duties) {
-//         emit(
-//           (
-//             duty: upcomingDutyFinder.findNextRosterEntry(
-//               DateTime.now(),
-//               duties,
-//             ),
-//             duties: duties,
-//           ),
-//         );
-//       },
-//     );
-//   }
-//   @override
-//   get initialState => (
-//         duty: upcomingDutyFinder.findNextRosterEntry(
-//           DateTime.now(),
-//           dutiesRepository(),
-//         ),
-//         duties: dutiesRepository()
-//       );
-//   @override
-//   void dispose() {
-//     _subscription?.cancel();
-//     super.dispose();
-//   }
-// }
+class UpcomingDuties extends Feature<UpcomingDutiesBloc> {
+  const UpcomingDuties({super.key});
 
-// final upcomingDuties = _UpcomingDuties();
+  @override
+  UpcomingDutiesBloc createBloc() => UpcomingDutiesBloc();
 
-// class UpcomingDuties extends UI {
-//   const UpcomingDuties({super.key});
+  @override
+  Widget build(BuildContext context, UpcomingDutiesBloc bloc) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (bloc.duties.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Text(
+              'Please setup your personal roster to see your upcoming duty.',
+              textAlign: TextAlign.center,
+            ),
+          )
+        else ...[
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text('Upcoming Duty'),
+          ),
+          Column(
+            children: [
+              _buildRow(
+                '  DAY  ',
+                bloc.upcomingDuty?.dayType().name.toUpperCase() ?? '-',
+                context,
+              ),
+              _buildRow(
+                '  SHIFT  ',
+                bloc.upcomingDuty?.shiftType().name.toUpperCase() ?? '-',
+                context,
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       mainAxisSize: MainAxisSize.min,
-//       children: [
-//         if (upcomingDuties().duties.isEmpty)
-//           Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-//             child: Text(
-//               'Please setup your personal roster to see your upcoming duty.',
-//               textAlign: TextAlign.center,
-//             ),
-//           )
-//         else ...[
-//           Text('Upcoming Duty').pad(),
-//           Column(
-//             children: [
-//               _buildRow(
-//                 '  DAY  ',
-//                 upcomingDuties().duty?.dayType().name.toUpperCase() ?? '-',
-//               ),
-//               _buildRow(
-//                 '  SHIFT  ',
-//                 upcomingDuties().duty?.shiftType().name.toUpperCase() ?? '-',
-//               ),
-//             ],
-//           ),
-//         ],
-//       ],
-//     );
-//   }
+  Widget _buildRow(String label, String value, BuildContext context) {
+    final theme = Theme.of(context);
 
-//   Widget _buildRow(String label, String value) {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//       children: [
-//         FLabel(
-//           axis: Axis.vertical,
-//           child: label.text(
-//             style: TextStyle(fontWeight: FontWeight.bold),
-//           ),
-//         ),
-//         FBadge(child: value.text()),
-//       ],
-//     );
-//   }
-// }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

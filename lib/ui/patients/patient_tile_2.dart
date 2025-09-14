@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/patients/patient_page.dart';
+import 'package:patients/ui/patients/patient_page_2.dart';
 
 class PatientTile extends StatelessWidget {
   final Patient patient;
@@ -29,15 +29,13 @@ class PatientTile extends StatelessWidget {
             if (patient.contact.target?.mnp.isNotEmpty == true)
               Text('Phone: ${patient.contact.target!.mnp}'),
             Text('Age: ${patient.age}'),
-            if (patient.complaints.isNotEmpty)
-              Text('Complaints: ${patient.complaints}'),
           ],
         ),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => PatientPage(patient: patient),
+              builder: (context) => PatientPage(patient.id),
             ),
           );
         },

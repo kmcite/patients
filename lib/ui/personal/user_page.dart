@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 import 'package:patients/domain/api/user_repository.dart';
 import 'package:patients/domain/models/user.dart';
@@ -23,7 +22,7 @@ class UserBloc extends Bloc {
   void toggleShowDurationIn() => userRepository.toggleShowDurationIn();
 }
 
-class UserPage extends BlocWidget<UserBloc> {
+class UserPage extends Feature<UserBloc> {
   const UserPage({super.key});
 
   @override
@@ -31,62 +30,146 @@ class UserPage extends BlocWidget<UserBloc> {
 
   @override
   Widget build(BuildContext context, UserBloc bloc) {
+    final theme = Theme.of(context);
     final duration = bloc.jobDuration;
-    return FScaffold(
-      header: FHeader.nested(
-        prefixes: [
-          FButton.icon(
-            child: const Icon(FIcons.x),
-            onPress: () => Navigator.of(context).pop(),
-          )
-        ],
+
+    return Scaffold(
+      appBar: AppBar(
         title: Text(bloc.name),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
-      child: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            FTextField(
-              label: const Text('Name'),
-              initialText: bloc.name,
-              onChange: bloc.setName,
+            // Profile Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: theme.colorScheme.primary,
+                      child: Icon(
+                        Icons.person,
+                        size: 40,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: bloc.name,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        prefixIcon: Icon(Icons.person_outline),
+                      ),
+                      onChanged: bloc.setName,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            FButton(
-              onPress: bloc.toggleShowDurationIn,
-              child: Text('Showing in: ${bloc.showDurationIn.name}, Toggle?'),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 16),
-                  Text('Job Started on ${bloc.jobStartedOn.format}'),
-                  const SizedBox(height: 8),
-                  Text(
-                    _formatDuration(duration, bloc.showDurationIn),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  FButton(
-                    onPress: () async {
-                      final selected = await showDatePicker(
-                        context: context,
-                        initialDate: bloc.jobStartedOn,
-                        firstDate: DateTime(1950),
-                        lastDate: DateTime.now(),
-                      );
 
-                      if (selected != null) {
-                        bloc.setJobStartedOn(selected);
-                      }
-                    },
-                    prefix: const Icon(Icons.update),
-                    child: const Text('Update Job Start Date'),
-                  ),
-                ],
+            const SizedBox(height: 16),
+
+            // Experience Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.work_history,
+                          color: theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Work Experience',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Duration Display
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            _formatDuration(duration, bloc.showDurationIn),
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          Text(
+                            'of experience',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Job Start Date
+                    ListTile(
+                      leading: const Icon(Icons.calendar_today),
+                      title: const Text('Job Started On'),
+                      subtitle: Text(bloc.jobStartedOn.format),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Duration Format Toggle
+                    OutlinedButton.icon(
+                      onPressed: bloc.toggleShowDurationIn,
+                      icon: const Icon(Icons.swap_horiz),
+                      label: Text('Show in ${bloc.showDurationIn.name}'),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Update Date Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final selected = await showDatePicker(
+                            context: context,
+                            initialDate: bloc.jobStartedOn,
+                            firstDate: DateTime(1950),
+                            lastDate: DateTime.now(),
+                          );
+
+                          if (selected != null) {
+                            bloc.setJobStartedOn(selected);
+                          }
+                        },
+                        icon: const Icon(Icons.edit_calendar),
+                        label: const Text('Update Job Start Date'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

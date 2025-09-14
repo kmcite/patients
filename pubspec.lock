@@ -559,7 +559,7 @@ packages:
     source: hosted
     version: "2.0.0"
   navigation_builder:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: navigation_builder
       sha256: d1b145dde5869849613d9b93ecd8f5a3ae929471ef81d1ba017f476b70bd7c39

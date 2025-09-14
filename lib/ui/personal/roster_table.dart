@@ -1,125 +1,90 @@
-// import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:patients/domain/api/duties_repository.dart';
+import 'package:patients/domain/models/duty.dart';
+import 'package:patients/utils/architecture.dart';
+import 'table_cell_builder.dart';
 
-// import 'package:forui/forui.dart';
+class RosterTableBloc extends Bloc {
+  late final DutiesRepository dutiesRepository;
 
-// import '../../main.dart';
-// import '../../domain/models/duty.dart';
+  @override
+  void initState() {
+    dutiesRepository = watch<DutiesRepository>();
+  }
 
-// typedef RosterTableState = ({List<Duty> duties});
+  List<Duty> get duties =>
+      dutiesRepository.duties.hasData ? dutiesRepository.duties.data! : [];
 
-// class RosterEvent {}
+  void toggleDuty(DayType day, ShiftType shift) {
+    try {
+      final existingDuty = duties.firstWhere(
+        (duty) => duty.dayType() == day && duty.shiftType() == shift,
+      );
+      dutiesRepository.removeDuty(existingDuty);
+    } catch (e) {
+      // Duty doesn't exist, create new one
+      final newDuty = Duty()
+        ..dayType(day)
+        ..shiftType(shift);
+      dutiesRepository.addDuty(newDuty);
+    }
+  }
 
-// class PutRosterEvent extends RosterEvent {
-//   final Duty duty;
-//   PutRosterEvent(this.duty);
-// }
+  bool isDutyScheduled(DayType day, ShiftType shift) {
+    return duties.any(
+      (duty) => duty.dayType() == day && duty.shiftType() == shift,
+    );
+  }
+}
 
-// class RemoveRosterEvent extends RosterEvent {
-//   final int id;
-//   RemoveRosterEvent(this.id);
-// }
+class RosterTable extends Feature<RosterTableBloc> {
+  const RosterTable({super.key});
 
-// class _RosterTable extends Bloc<void, RosterTableState> {
-//   _RosterTable() {
-//     on<PutRosterEvent>(
-//       (event) => dutiesRepository(event.duty),
-//     );
-//     on<RemoveRosterEvent>(
-//       (event) => dutiesRepository.remove(event.id),
-//     );
-//     _dutiesSubscription = dutiesRepository.watch().listen(
-//       (duties) {
-//         emit(
-//           (duties: duties),
-//         );
-//       },
-//     );
-//   }
-//   StreamSubscription<List<Duty>>? _dutiesSubscription;
-//   @override
-//   void dispose() {
-//     _dutiesSubscription?.cancel();
-//     super.dispose();
-//   }
+  @override
+  RosterTableBloc createBloc() => RosterTableBloc();
 
-//   @override
-//   get initialState => (duties: dutiesRepository());
-// }
-
-// late _RosterTable _rosterTable;
-
-// class RosterTable extends UI {
-//   const RosterTable({super.key});
-//   @override
-//   void didMountWidget(BuildContext context) {
-//     super.didMountWidget(context);
-//     _rosterTable = _RosterTable();
-//   }
-
-//   @override
-//   void didUnmountWidget() {
-//     _rosterTable.dispose();
-//     super.didUnmountWidget();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Table(
-//       border: TableBorder.all(width: 2),
-//       children: [
-//         TableRow(
-//           children: [
-//             TableCellBuilder(child: 'Day\\Shift'.text(textScaleFactor: .8)),
-//             TableCellBuilder(child: 'Morning'.text(textScaleFactor: .8)),
-//             TableCellBuilder(child: 'Evening'.text(textScaleFactor: .8)),
-//             TableCellBuilder(child: 'Night'.text(textScaleFactor: .8)),
-//           ],
-//         ),
-//         ...DayType.values.map(
-//           (day) => TableRow(
-//             children: [
-//               TableCellBuilder(
-//                 child: day.name.text(
-//                   textScaleFactor: .75,
-//                 ),
-//               ),
-//               ...ShiftType.values.map(
-//                 (shift) => TableCellBuilder(
-//                   child: FSwitch(
-//                     value: _rosterTable().duties.any(
-//                       (entry) {
-//                         return entry.dayType() == day &&
-//                             entry.shiftType() == shift;
-//                       },
-//                     ),
-//                     onChange: (value) {
-//                       try {
-//                         final entry = dutiesRepository.getAll().firstWhere(
-//                           (eachRosterEntry) {
-//                             return eachRosterEntry.dayType() == day &&
-//                                 eachRosterEntry.shiftType() == shift;
-//                           },
-//                         );
-//                         _rosterTable(
-//                           RemoveRosterEvent(entry.id),
-//                         );
-//                       } catch (e) {
-//                         _rosterTable(
-//                           PutRosterEvent(
-//                             Duty()
-//                               ..shiftType(shift)
-//                               ..dayType(day),
-//                           ),
-//                         );
-//                       }
-//                     },
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     ).pad();
-//   }
-// }
+  @override
+  Widget build(BuildContext context, RosterTableBloc bloc) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Table(
+        border: TableBorder.all(width: 2),
+        children: [
+          const TableRow(
+            children: [
+              TableCellBuilder(
+                  child:
+                      Text('Day\\Shift', textScaler: TextScaler.linear(0.8))),
+              TableCellBuilder(
+                  child: Text('Morning', textScaler: TextScaler.linear(0.8))),
+              TableCellBuilder(
+                  child: Text('Evening', textScaler: TextScaler.linear(0.8))),
+              TableCellBuilder(
+                  child: Text('Night', textScaler: TextScaler.linear(0.8))),
+            ],
+          ),
+          ...DayType.values.map(
+            (day) => TableRow(
+              children: [
+                TableCellBuilder(
+                  child: Text(
+                    day.name,
+                    textScaler: const TextScaler.linear(0.75),
+                  ),
+                ),
+                ...ShiftType.values.map(
+                  (shift) => TableCellBuilder(
+                    child: Switch(
+                      value: bloc.isDutyScheduled(day, shift),
+                      onChanged: (value) => bloc.toggleDuty(day, shift),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

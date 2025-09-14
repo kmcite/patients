@@ -28,7 +28,7 @@ class AddDoctorDialogBloc extends Bloc {
   }
 }
 
-class AddDoctorDialog extends BlocWidget<AddDoctorDialogBloc> {
+class AddDoctorDialog extends Feature<AddDoctorDialogBloc> {
   const AddDoctorDialog({super.key});
 
   @override

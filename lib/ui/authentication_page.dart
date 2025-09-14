@@ -1,138 +1,165 @@
-// import 'package:flutter/material.dart';
-// import 'package:forui/forui.dart';
-// import 'package:manager/manager.dart';
-// import 'package:patients/domain/api/authentication_repository.dart';
-// import 'package:patients/domain/api/doctors_repository.dart';
-// import 'package:patients/domain/api/patients_repository.dart';
-// import 'package:patients/domain/models/authentication.dart';
-// import 'package:states_rebuilder/states_rebuilder.dart';
+import 'package:flutter/material.dart';
+import 'package:patients/domain/api/authentication_repository.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/utils/architecture.dart';
 
-// mixin AuthenticationBloc {
-//   final indexRM = RM.inject(() => 0);
-//   int index([int? value]) {
-//     if (value != null) {
-//       indexRM.state = value;
-//     }
-//     return indexRM.state;
-//   }
+class AuthenticationBloc extends Bloc {
+  late final AuthenticationRepository authRepo;
+  late final PatientsRepository patientsRepo;
 
-//   final nameRM = RM.injectTextEditing(text: 'Adn');
-//   final emailRM = RM.injectTextEditing(text: 'adn@gmail.com');
-//   final passwordRM = RM.injectTextEditing(text: '123456');
+  int selectedIndex = 0;
+  final nameController = TextEditingController(text: 'Adn');
+  final emailController = TextEditingController(text: 'adn@gmail.com');
+  final passwordController = TextEditingController(text: '123456');
 
-//   void login() {
-//     final type = switch (index()) {
-//       0 => UserType.doctor,
-//       _ => UserType.patient,
-//     };
-//     final request = switch (type) {
-//       UserType.doctor => () {
-//           final doctor = doctorsRepository.getAll().where(
-//             (doc) {
-//               return doc.email == emailRM.text;
-//             },
-//           ).firstOrNull;
-//           if (doctor?.password == passwordRM.text) {
-//             return (doctor, null);
-//           } else {
-//             return (null, null);
-//           }
-//         },
-//       UserType.patient => () {
-//           final patient = patientsRepository.getAll().where(
-//             (doc) {
-//               return doc.email == emailRM.text;
-//             },
-//           ).firstOrNull;
-//           if (patient?.password == passwordRM.text) {
-//             return (null, patient);
-//           } else {
-//             return (null, null);
-//           }
-//         },
-//     };
-//     final (doctor, patient) = request();
-//     authentication = authentication
-//       ..id = doctor?.id ?? patient?.id ?? 0
-//       ..userType = type
-//       ..name = nameRM.text
-//       ..email = emailRM.text
-//       ..password = passwordRM.text;
-//   }
+  @override
+  void initState() {
+    authRepo = watch<AuthenticationRepository>();
+    patientsRepo = watch<PatientsRepository>();
+  }
 
-//   bool get invalidCredentials {
-//     return emailRM.text.isEmpty || passwordRM.text.isEmpty;
-//   }
-// }
+  void setIndex(int index) {
+    selectedIndex = index;
+    notifyListeners();
+  }
 
-// class AuthenticationPage extends UI with AuthenticationBloc {
-//   AuthenticationPage({super.key});
+  Future<void> login() async {
+    await authRepo.login(emailController.text, passwordController.text);
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Authentication'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           children: [
-//             FTabs(
-//               initialIndex: index(),
-//               onPress: index,
-//               children: [
-//                 FTabEntry(
-//                   label: 'DOCTOR'.text(),
-//                   child: FLabel(
-//                     axis: Axis.vertical,
-//                     child: Column(
-//                       children: [
-//                         FTextField(
-//                           label: 'Name'.text(),
-//                           controller: nameRM.controller,
-//                         ).pad(),
-//                         FTextField.email(
-//                           controller: emailRM.controller,
-//                         ).pad(),
-//                         FTextField.password(
-//                           controller: passwordRM.controller,
-//                         ).pad(),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 FTabEntry(
-//                   label: 'PATIENT'.text(),
-//                   child: Column(
-//                     children: [
-//                       FTextField(
-//                         label: 'Name'.text(),
-//                         controller: nameRM.controller,
-//                       ).pad(),
-//                       FTextField.email(
-//                         controller: emailRM.controller,
-//                       ).pad(),
-//                       FTextField.password(
-//                         controller: passwordRM.controller,
-//                       ).pad(),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             FButton(
-//               onPress: invalidCredentials ? null : () => login(),
-//               child: const Text('Login'),
-//             ).pad(),
-//             FButton(
-//               child: const Text('By pass login'),
-//               onPress: () {
-//                 authentication = Authentication()..id = 1;
-//               },
-//             ).pad(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  Future<void> bypassLogin() async {
+    await authRepo.login('adn@gmail.com', '1234');
+  }
+
+  bool get invalidCredentials {
+    return emailController.text.isEmpty || passwordController.text.isEmpty;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+}
+
+class AuthenticationPage extends Feature<AuthenticationBloc> {
+  const AuthenticationPage({super.key});
+
+  @override
+  AuthenticationBloc createBloc() => AuthenticationBloc();
+
+  @override
+  Widget build(BuildContext context, AuthenticationBloc bloc) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Authentication'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Tab selector
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => bloc.setIndex(0),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: bloc.selectedIndex == 0
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.surface,
+                            foregroundColor: bloc.selectedIndex == 0
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                          child: const Text('DOCTOR'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () => bloc.setIndex(1),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: bloc.selectedIndex == 1
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.surface,
+                            foregroundColor: bloc.selectedIndex == 1
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.onSurface,
+                          ),
+                          child: const Text('PATIENT'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Form fields
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: bloc.nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: bloc.emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: bloc.passwordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Action buttons
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: bloc.invalidCredentials ? null : bloc.login,
+                  child: const Text('Login'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: bloc.bypassLogin,
+                  child: const Text('Bypass Login'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

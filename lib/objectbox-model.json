@@ -29,7 +29,7 @@
     },
     {
       "id": "2:4159013604071220306",
-      "lastPropertyId": "1735:3693019878555955125",
+      "lastPropertyId": "1746:891593277445962956",
       "name": "Patient",
       "properties": [
         {
@@ -104,7 +104,7 @@
         {
           "id": "1730:2302751481148111159",
           "name": "createdAt",
-          "type": 9
+          "type": 10
         },
         {
           "id": "1731:8057023914287832289",
@@ -136,6 +136,61 @@
           "flags": 520,
           "indexId": "407:9008757180834748715",
           "relationTarget": "Contact"
+        },
+        {
+          "id": "1736:3172508271910549627",
+          "name": "lastVisitDate",
+          "type": 10
+        },
+        {
+          "id": "1737:444918931651835149",
+          "name": "emergencyContactName",
+          "type": 9
+        },
+        {
+          "id": "1738:2168464800832389379",
+          "name": "emergencyContactPhone",
+          "type": 9
+        },
+        {
+          "id": "1739:1627355908713267697",
+          "name": "emergencyContactRelation",
+          "type": 9
+        },
+        {
+          "id": "1740:6546017995758448647",
+          "name": "bloodGroup",
+          "type": 9
+        },
+        {
+          "id": "1741:6587433836633058840",
+          "name": "allergies",
+          "type": 9
+        },
+        {
+          "id": "1742:3585265838733917658",
+          "name": "chronicConditions",
+          "type": 9
+        },
+        {
+          "id": "1743:6795107956745215823",
+          "name": "currentMedications",
+          "type": 9
+        },
+        {
+          "id": "1744:827088204567223177",
+          "name": "insuranceProvider",
+          "type": 9
+        },
+        {
+          "id": "1745:6774579548294241495",
+          "name": "insuranceNumber",
+          "type": 9
+        },
+        {
+          "id": "1746:891593277445962956",
+          "name": "outComeStatusIndex",
+          "type": 6
         }
       ],
       "relations": [
@@ -196,7 +251,7 @@
     },
     {
       "id": "5:7853823722967231000",
-      "lastPropertyId": "3:8170642712981172191",
+      "lastPropertyId": "11:3526048637368443406",
       "name": "Investigation",
       "properties": [
         {
@@ -213,6 +268,46 @@
         {
           "id": "3:8170642712981172191",
           "name": "price",
+          "type": 8
+        },
+        {
+          "id": "4:6918638539104337986",
+          "name": "description",
+          "type": 9
+        },
+        {
+          "id": "5:1363203546485179008",
+          "name": "category",
+          "type": 9
+        },
+        {
+          "id": "6:3808868594320084761",
+          "name": "currency",
+          "type": 9
+        },
+        {
+          "id": "7:1277294532560993752",
+          "name": "scheduledDate",
+          "type": 10
+        },
+        {
+          "id": "8:5239024007504973631",
+          "name": "completedDate",
+          "type": 10
+        },
+        {
+          "id": "9:7496750971145633167",
+          "name": "results",
+          "type": 9
+        },
+        {
+          "id": "10:3106246950265481209",
+          "name": "notes",
+          "type": 9
+        },
+        {
+          "id": "11:3526048637368443406",
+          "name": "statusIndex",
           "type": 6
         }
       ],
@@ -353,7 +448,7 @@
     },
     {
       "id": "15:1986126359130333200",
-      "lastPropertyId": "5:4826083446523773321",
+      "lastPropertyId": "18:1544990941561721423",
       "name": "Doctor",
       "properties": [
         {
@@ -368,18 +463,73 @@
           "type": 9
         },
         {
-          "id": "3:7315247302867442698",
-          "name": "description",
-          "type": 9
-        },
-        {
           "id": "4:7951330504872670927",
           "name": "email",
           "type": 9
         },
         {
-          "id": "5:4826083446523773321",
-          "name": "password",
+          "id": "6:4502391845757251622",
+          "name": "phone",
+          "type": 9
+        },
+        {
+          "id": "7:6452798886257118066",
+          "name": "specialization",
+          "type": 9
+        },
+        {
+          "id": "8:7956253144347411173",
+          "name": "licenseNumber",
+          "type": 9
+        },
+        {
+          "id": "9:5055731231724190981",
+          "name": "qualifications",
+          "type": 9
+        },
+        {
+          "id": "10:6334158486236623192",
+          "name": "dateOfBirth",
+          "type": 10
+        },
+        {
+          "id": "11:3005327214112600185",
+          "name": "joinedDate",
+          "type": 10
+        },
+        {
+          "id": "12:5763967729155361574",
+          "name": "department",
+          "type": 9
+        },
+        {
+          "id": "13:8097061259820759320",
+          "name": "designation",
+          "type": 9
+        },
+        {
+          "id": "14:2901969000898775770",
+          "name": "consultationFee",
+          "type": 8
+        },
+        {
+          "id": "15:2609976116623726171",
+          "name": "workingHours",
+          "type": 9
+        },
+        {
+          "id": "16:6371579754284477258",
+          "name": "workingDays",
+          "type": 9
+        },
+        {
+          "id": "17:7475524711086753176",
+          "name": "isActive",
+          "type": 1
+        },
+        {
+          "id": "18:1544990941561721423",
+          "name": "notes",
           "type": 9
         }
       ],
@@ -390,11 +540,442 @@
           "targetId": "2:4159013604071220306"
         }
       ]
+    },
+    {
+      "id": "16:3289163426584742788",
+      "lastPropertyId": "10:262148575626012010",
+      "name": "Appointment",
+      "properties": [
+        {
+          "id": "1:5146990383370698618",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:6355745299139926619",
+          "name": "scheduledDateTime",
+          "type": 10
+        },
+        {
+          "id": "3:7973658018943226081",
+          "name": "actualStartTime",
+          "type": 10
+        },
+        {
+          "id": "4:8418474585030267279",
+          "name": "actualEndTime",
+          "type": 10
+        },
+        {
+          "id": "5:4070209832168730991",
+          "name": "reason",
+          "type": 9
+        },
+        {
+          "id": "6:7004230806131262125",
+          "name": "notes",
+          "type": 9
+        },
+        {
+          "id": "7:618994848952429055",
+          "name": "statusIndex",
+          "type": 6
+        },
+        {
+          "id": "8:4267873078244425457",
+          "name": "typeIndex",
+          "type": 6
+        },
+        {
+          "id": "9:8216438896597587608",
+          "name": "patientId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "408:6057669727236754585",
+          "relationTarget": "Patient"
+        },
+        {
+          "id": "10:262148575626012010",
+          "name": "doctorId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "409:8258010449869762729",
+          "relationTarget": "Doctor"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "17:4089677260534385353",
+      "lastPropertyId": "9:368420273216129981",
+      "name": "Authentication",
+      "properties": [
+        {
+          "id": "1:5508232800194085566",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7984278070065832974",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:3002032858949216198",
+          "name": "email",
+          "type": 9
+        },
+        {
+          "id": "4:4182636003267692422",
+          "name": "passwordHash",
+          "type": 9
+        },
+        {
+          "id": "5:4395648312392891179",
+          "name": "userTypeIndex",
+          "type": 6
+        },
+        {
+          "id": "6:9099011924939092857",
+          "name": "lastLoginAt",
+          "type": 10
+        },
+        {
+          "id": "7:2219730541613337007",
+          "name": "createdAt",
+          "type": 10
+        },
+        {
+          "id": "8:3347946343753544399",
+          "name": "isActive",
+          "type": 1
+        },
+        {
+          "id": "9:368420273216129981",
+          "name": "refreshToken",
+          "type": 9
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "18:1470824927941939903",
+      "lastPropertyId": "24:9105215045638439832",
+      "name": "MedicalRecord",
+      "properties": [
+        {
+          "id": "1:3765286632683840197",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4363428105230735475",
+          "name": "visitDate",
+          "type": 10
+        },
+        {
+          "id": "3:8076195793926560294",
+          "name": "chiefComplaint",
+          "type": 9
+        },
+        {
+          "id": "4:6905558033554620243",
+          "name": "historyOfPresentIllness",
+          "type": 9
+        },
+        {
+          "id": "5:1053996929533946460",
+          "name": "pastMedicalHistory",
+          "type": 9
+        },
+        {
+          "id": "6:2679081350029482665",
+          "name": "familyHistory",
+          "type": 9
+        },
+        {
+          "id": "7:2244379998332025661",
+          "name": "socialHistory",
+          "type": 9
+        },
+        {
+          "id": "8:3542520254871928394",
+          "name": "generalExamination",
+          "type": 9
+        },
+        {
+          "id": "9:545054676468572264",
+          "name": "systemicExamination",
+          "type": 9
+        },
+        {
+          "id": "10:6986952555815384217",
+          "name": "temperature",
+          "type": 8
+        },
+        {
+          "id": "11:521967056618386650",
+          "name": "systolicBP",
+          "type": 6
+        },
+        {
+          "id": "12:1214449970028317472",
+          "name": "diastolicBP",
+          "type": 6
+        },
+        {
+          "id": "13:5996243583429897161",
+          "name": "heartRate",
+          "type": 6
+        },
+        {
+          "id": "14:4871227213654838342",
+          "name": "respiratoryRate",
+          "type": 6
+        },
+        {
+          "id": "15:5673930060479780324",
+          "name": "oxygenSaturation",
+          "type": 8
+        },
+        {
+          "id": "16:7179085039994860594",
+          "name": "weight",
+          "type": 8
+        },
+        {
+          "id": "17:4580109535514740296",
+          "name": "height",
+          "type": 8
+        },
+        {
+          "id": "18:3974610010001609957",
+          "name": "assessment",
+          "type": 9
+        },
+        {
+          "id": "19:8107002928315860511",
+          "name": "plan",
+          "type": 9
+        },
+        {
+          "id": "20:4687220259087956397",
+          "name": "prescription",
+          "type": 9
+        },
+        {
+          "id": "21:453503130652520463",
+          "name": "followUpInstructions",
+          "type": 9
+        },
+        {
+          "id": "22:6519583367946390657",
+          "name": "nextVisitDate",
+          "type": 10
+        },
+        {
+          "id": "23:5579001615654895779",
+          "name": "patientId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "410:8920057393316433379",
+          "relationTarget": "Patient"
+        },
+        {
+          "id": "24:9105215045638439832",
+          "name": "doctorId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "411:4727499750798553103",
+          "relationTarget": "Doctor"
+        }
+      ],
+      "relations": [
+        {
+          "id": "402:214841396975952034",
+          "name": "investigations",
+          "targetId": "5:7853823722967231000"
+        }
+      ]
+    },
+    {
+      "id": "19:3056377233590026098",
+      "lastPropertyId": "14:7525486727165631048",
+      "name": "Medication",
+      "properties": [
+        {
+          "id": "1:6512304711049249403",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:1817898141941384693",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:1413594400330715444",
+          "name": "genericName",
+          "type": 9
+        },
+        {
+          "id": "4:7891764363420410389",
+          "name": "dosage",
+          "type": 9
+        },
+        {
+          "id": "5:7705951965249159012",
+          "name": "frequency",
+          "type": 9
+        },
+        {
+          "id": "6:2917844587232147117",
+          "name": "route",
+          "type": 9
+        },
+        {
+          "id": "7:1892315090286723448",
+          "name": "startDate",
+          "type": 10
+        },
+        {
+          "id": "8:6348914724696331403",
+          "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "9:7459438255444441477",
+          "name": "instructions",
+          "type": 9
+        },
+        {
+          "id": "10:5519699684475915756",
+          "name": "sideEffects",
+          "type": 9
+        },
+        {
+          "id": "11:7664492417722216407",
+          "name": "contraindications",
+          "type": 9
+        },
+        {
+          "id": "12:2387936337456098878",
+          "name": "price",
+          "type": 8
+        },
+        {
+          "id": "13:2273438720439431675",
+          "name": "manufacturer",
+          "type": 9
+        },
+        {
+          "id": "14:7525486727165631048",
+          "name": "categoryIndex",
+          "type": 6
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "20:5197885224027546923",
+      "lastPropertyId": "4:5318890103728209237",
+      "name": "Prescription",
+      "properties": [
+        {
+          "id": "1:2726093722558721548",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:7336235664944583454",
+          "name": "prescribedDate",
+          "type": 10
+        },
+        {
+          "id": "3:3854906506618804346",
+          "name": "notes",
+          "type": 9
+        },
+        {
+          "id": "4:5318890103728209237",
+          "name": "patientId",
+          "type": 11,
+          "flags": 520,
+          "indexId": "412:119667996890342627",
+          "relationTarget": "Patient"
+        }
+      ],
+      "relations": [
+        {
+          "id": "403:2662595580555827702",
+          "name": "medications",
+          "targetId": "19:3056377233590026098"
+        }
+      ]
+    },
+    {
+      "id": "21:3373844288690916005",
+      "lastPropertyId": "9:5019051483743928331",
+      "name": "User",
+      "properties": [
+        {
+          "id": "1:64506967840186222",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8027408097153883898",
+          "name": "name",
+          "type": 9
+        },
+        {
+          "id": "3:1773208663647036377",
+          "name": "email",
+          "type": 9
+        },
+        {
+          "id": "4:6274861274416555824",
+          "name": "phone",
+          "type": 9
+        },
+        {
+          "id": "5:5071472864674454981",
+          "name": "specialization",
+          "type": 9
+        },
+        {
+          "id": "6:7637069852914016601",
+          "name": "licenseNumber",
+          "type": 9
+        },
+        {
+          "id": "7:2737877946816070620",
+          "name": "jobStartedOn",
+          "type": 10
+        },
+        {
+          "id": "8:8469721498347676776",
+          "name": "dateOfBirth",
+          "type": 10
+        },
+        {
+          "id": "9:5019051483743928331",
+          "name": "showDurationInIndex",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "15:1986126359130333200",
-  "lastIndexId": "407:9008757180834748715",
-  "lastRelationId": "401:2436407489687402963",
+  "lastEntityId": "21:3373844288690916005",
+  "lastIndexId": "412:119667996890342627",
+  "lastRelationId": "403:2662595580555827702",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
@@ -2541,7 +3122,9 @@
     3255993734122693257,
     8556727674371364518,
     2390720424392122779,
-    1489708287169249304
+    1489708287169249304,
+    7315247302867442698,
+    4826083446523773321
   ],
   "retiredRelationUids": [
     664341722264876839,

@@ -5,33 +5,44 @@ import 'package:patients/utils/architecture.dart';
 
 class PatientBloc extends Bloc {
   late final PatientsRepository patientsRepository;
-  final Patient patient;
-
-  PatientBloc(this.patient);
+  Patient? patient;
 
   @override
   void initState() {
     patientsRepository = watch<PatientsRepository>();
   }
 
-  void updatePatient() {
-    patientsRepository.put(patient);
+  void loadPatient(int id) {
+    patient = patientsRepository.getById(id);
+    notifyListeners();
   }
 }
 
 class PatientPage extends Feature<PatientBloc> {
-  final Patient patient;
-
-  const PatientPage({super.key, required this.patient});
+  const PatientPage(this.patientId, {super.key});
+  final int patientId;
 
   @override
-  PatientBloc createBloc() => PatientBloc(patient);
+  PatientBloc createBloc() => PatientBloc();
 
   @override
   Widget build(BuildContext context, PatientBloc bloc) {
+    // Load patient if not already loaded
+    if (bloc.patient?.id != patientId) {
+      bloc.loadPatient(patientId);
+    }
+
+    final patient = bloc.patient;
+    if (patient == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Patient')),
+        body: const Center(child: Text('Patient not found')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(bloc.patient.name),
+        title: Text(patient.name),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -57,16 +68,11 @@ class PatientPage extends Feature<PatientBloc> {
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 16),
-                    _buildInfoRow('Name', bloc.patient.name),
-                    _buildInfoRow('Email', bloc.patient.email),
-                    _buildInfoRow('Age', bloc.patient.age.toString()),
-                    _buildInfoRow(
-                        'Gender', bloc.patient.gender ? 'Male' : 'Female'),
-                    _buildInfoRow(
-                        'Blood Group',
-                        bloc.patient.bloodGroup.isNotEmpty
-                            ? bloc.patient.bloodGroup
-                            : 'Unknown'),
+                    _buildInfoRow('Name', patient.name),
+                    _buildInfoRow('Email', patient.email),
+                    _buildInfoRow('Phone', patient.contact.target?.mnp ?? ''),
+                    _buildInfoRow('Age', patient.age.toString()),
+                    _buildInfoRow('Gender', patient.gender ? 'Male' : 'Female'),
                   ],
                 ),
               ),
@@ -84,24 +90,19 @@ class PatientPage extends Feature<PatientBloc> {
                     ),
                     const SizedBox(height: 16),
                     _buildInfoRow(
-                        'Complaints',
-                        bloc.patient.complaints.isNotEmpty
-                            ? bloc.patient.complaints
-                            : 'None'),
-                    _buildInfoRow(
-                        'Diagnosis',
-                        bloc.patient.diagnosis.isNotEmpty
-                            ? bloc.patient.diagnosis
-                            : 'None'),
+                        'Blood Group',
+                        patient.bloodGroup.isNotEmpty
+                            ? patient.bloodGroup
+                            : 'Unknown'),
                     _buildInfoRow(
                         'Allergies',
-                        bloc.patient.allergies.isNotEmpty
-                            ? bloc.patient.allergies
+                        patient.allergies.isNotEmpty
+                            ? patient.allergies
                             : 'None'),
                     _buildInfoRow(
                         'Chronic Conditions',
-                        bloc.patient.chronicConditions.isNotEmpty
-                            ? bloc.patient.chronicConditions
+                        patient.chronicConditions.isNotEmpty
+                            ? patient.chronicConditions
                             : 'None'),
                   ],
                 ),

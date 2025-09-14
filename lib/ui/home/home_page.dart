@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:forui/forui.dart';
+import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/domain/api/settings_repository.dart';
 import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient.dart';
+import 'package:patients/ui/add_patient_dialog.dart';
+import 'package:patients/ui/app_drawer.dart';
+import 'package:patients/ui/investigations_page.dart';
+import 'package:patients/ui/patients/patients_page.dart';
+import 'package:patients/ui/personal/user_page.dart';
+import 'package:patients/ui/settings_page.dart';
 import 'package:patients/utils/architecture.dart';
 
 class HomeBloc extends Bloc {
@@ -30,7 +37,7 @@ class HomeBloc extends Bloc {
   }
 }
 
-class HomePage extends BlocWidget<HomeBloc> {
+class HomePage extends Feature<HomeBloc> {
   const HomePage({super.key});
 
   @override
@@ -38,138 +45,239 @@ class HomePage extends BlocWidget<HomeBloc> {
 
   @override
   Widget build(BuildContext context, HomeBloc bloc) {
-    return FScaffold(
-      header: FHeader.nested(
-        title: const Text('HOME'),
-        prefixes: [
-          FButton.icon(
-            child: const Icon(FIcons.menu),
-            onPress: () {
-              // TODO: Open drawer
-            },
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Patients Management'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => navigator.to(const AppDrawer()),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () => navigator.to(const UserPage()),
           ),
-        ],
-        suffixes: [
-          FButton.icon(
-            child: const Icon(FIcons.personStanding),
-            onPress: () {
-              // TODO: Navigate to user page
-            },
-          ),
-          FButton.icon(
-            onPress: bloc.toggleDark,
-            child: Icon(bloc.dark ? FIcons.moon : FIcons.sun),
+          IconButton(
+            icon: Icon(bloc.dark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: bloc.toggleDark,
           ),
         ],
       ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FCard(
-                subtitle: const Row(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Welcome Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.0),
-                      child: Icon(FIcons.badgeInfo),
-                    ),
-                    Text('INFORMATION SYSTEM'),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('All attended patients'),
-                      Text(
-                        '${bloc.patientsCount}',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.local_hospital,
+                          color: theme.colorScheme.primary,
+                          size: 28,
                         ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Welcome to Patients Management',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Emergency and Trauma Center',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              FCard(
-                subtitle: const Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.0),
-                      child: Icon(FIcons.hospital),
-                    ),
-                    Text('HOSPITAL INFO'),
-                  ],
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Hospital Management System'),
-                      Text('Emergency and Trauma Center'),
-                    ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Statistics Cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Total Patients',
+                    '${bloc.patientsCount}',
+                    Icons.people,
+                    theme.colorScheme.primary,
                   ),
                 ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    context,
+                    'Today\'s Visits',
+                    '12', // TODO: Get actual count
+                    Icons.today,
+                    theme.colorScheme.secondary,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // Quick Actions Section
+            Text(
+              'Quick Actions',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              FCard(
-                subtitle: const Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(right: 8.0),
-                      child: Icon(FIcons.zap),
-                    ),
-                    Text('QUICK ACTIONS'),
-                  ],
+            ),
+            const SizedBox(height: 16),
+
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 1.2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              children: [
+                _buildActionCard(
+                  context,
+                  'Patients',
+                  Icons.people,
+                  theme.colorScheme.primary,
+                  () {
+                    navigator.to(const PatientsPage());
+                  },
                 ),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 3 / 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  children: [
-                    _buildActionButton(
-                      context,
-                      FIcons.user,
-                      'Patients',
-                      () {
-                        // TODO: Navigate to patients page
-                      },
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.settings,
-                      'Settings',
-                      () {
-                        // TODO: Navigate to settings page
-                      },
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.file,
-                      'Investigations',
-                      () {
-                        // TODO: Navigate to investigations page
-                      },
-                    ),
-                    _buildActionButton(
-                      context,
-                      FIcons.calendar,
-                      'Duty Roster',
-                      () {
-                        // TODO: Navigate to duty roster page
-                      },
-                    ),
-                  ],
+                _buildActionCard(
+                  context,
+                  'Appointments',
+                  Icons.calendar_today,
+                  theme.colorScheme.secondary,
+                  () {
+                    // TODO: Navigate to appointments page
+                  },
                 ),
+                _buildActionCard(
+                  context,
+                  'Investigations',
+                  Icons.science,
+                  theme.colorScheme.tertiary,
+                  () {
+                    navigator.to(const InvestigationsPage());
+                  },
+                ),
+                _buildActionCard(
+                  context,
+                  'Settings',
+                  Icons.settings,
+                  theme.colorScheme.outline,
+                  () => navigator.to(const SettingsPage()),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          await navigator.toDialog<Patient>(const AddPatientDialog());
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('New Patient'),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const Spacer(),
+                Text(
+                  value,
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 32,
+                  color: color,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -177,158 +285,4 @@ class HomePage extends BlocWidget<HomeBloc> {
       ),
     );
   }
-
-  Widget _buildActionButton(
-    BuildContext context,
-    IconData icon,
-    String title,
-    VoidCallback onTap,
-  ) {
-    return FButton(
-      onPress: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 32),
-          const SizedBox(height: 8),
-          Text(title, textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
 }
-
-// // ignore_for_file: unused_local_variable, unused_element
-
-// import 'package:forui/forui.dart';
-// import 'package:patients/domain/api/navigator.dart';
-// import 'package:patients/domain/api/patients_repository.dart';
-// import 'package:patients/domain/api/settings_repository.dart';
-// import 'package:patients/domain/models/doctor.dart';
-// import 'package:patients/main.dart';
-// import 'package:patients/ui/add_patient_dialog.dart';
-// import 'package:patients/ui/patient_page.dart';
-// import 'package:patients/ui/patients_bloc.dart';
-// import 'package:patients/ui/search_page.dart';
-// import 'package:patients/ui/settings_page_2.dart';
-// import 'package:patients/domain/models/patient.dart';
-
-// mixin HomeBloc {
-//   final clinicName = settingsRepository.clinicName;
-//   int get numberOfTodaysPatients {
-//     final today = DateTime.now();
-//     final oneDayBefore = today.subtract(const Duration(days: 1));
-//     return patientsRepository.getAll().where(
-//       (pt) {
-//         return true;
-//         // pt.presentation.betweenDate(today, oneDayBefore);
-//       },
-//     ).length;
-//   }
-
-//   /// recently modified patients are patients which are
-//   /// modified recently and at least contains 5 patients.
-//   Iterable<Patient> get recentlyModifiedPatients {
-//     return patientsRepository.getAll().where(
-//       (pt) {
-//         // return pt.modifiedOn.lessOrEqualDate(
-//         //   DateTime.now(),
-//         // );
-//         return true;
-//       },
-//     ).take(5);
-//   }
-
-//   int get numberOfRecentlyModifiedPatients => recentlyModifiedPatients.length;
-
-//   Doctor? onDutyDoctor() {
-//     return null;
-
-//     // return doctorsRepository.get(authenticationRepository.authentication().id);
-//   }
-// }
-
-// class HomePage extends UI with HomeBloc {
-//   HomePage({super.key});
-//   @override
-//   Widget build(BuildContext context) {
-//     return FScaffold(
-//       header: FHeader(
-//         title: const Text('Home'),
-//         suffixes: [
-//           FButton.icon(
-//             onPress: () => navigator.to(SettingsPage()),
-//             child: Icon(FIcons.settings),
-//           ),
-//         ],
-//       ),
-//       child: ListView(
-//         children: [
-//           FLabel(
-//             axis: Axis.vertical,
-//             label: clinicName().text(),
-//             description: '$numberOfTodaysPatients patients served today'.text(),
-//             child: 'emeregncy and trauma center'.text(),
-//           ).pad(),
-//           FLabel(
-//             axis: Axis.vertical,
-//             label: Text('quick actions'),
-//             child: Row(
-//               children: [
-//                 FButton.icon(
-//                   onPress: () async {
-//                     final patient = await navigator.toDialog<Patient>(
-//                       AddPatientDialog(),
-//                     );
-//                     if (patient != null) patientsBloc.put(patient);
-//                   },
-//                   child: Icon(FIcons.plus),
-//                 ).pad(),
-//                 FButton.icon(
-//                   onPress: () => navigator.to(SearchPage()),
-//                   child: Icon(FIcons.search),
-//                 ).pad(),
-//                 FButton.icon(
-//                   onPress: () => navigator.to(PatientsPage()),
-//                   child: Icon(FIcons.list),
-//                 ).pad(),
-//               ],
-//             ),
-//           ).pad(),
-//           FLabel(
-//             axis: Axis.vertical,
-//             label: Text('Total Patients'),
-//             description:
-//                 '${onDutyDoctor()?.name}, ${onDutyDoctor()?.email}'.text(),
-//             child: '${patientsBloc.patients.length}'.text(),
-//           ).pad(),
-//           FTileGroup(
-//             // maxHeight: 630,
-//             label: 'recent modifications'.text(),
-//             description:
-//                 '$numberOfRecentlyModifiedPatients recently modified.'.text(),
-//             children: recentlyModifiedPatients.map(
-//               (patient) {
-//                 return FTile(
-//                   onPress: () {
-//                     navigator.to(
-//                       PatientPage(patient.id),
-//                     );
-//                   },
-//                   title: patient.name.text(),
-//                 );
-//               },
-//             ).toList(),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// extension on DateTime {
-//   bool lessOrEqualDate(DateTime dateTime) =>
-//       isBefore(dateTime) || isAtSameMomentAs(dateTime);
-//   bool betweenDate(DateTime today, DateTime oneDayBefore) =>
-//       isAfter(oneDayBefore) && isBefore(today);
-// }

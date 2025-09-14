@@ -61,43 +61,43 @@ abstract class CrudRepository<T> extends Repository {
   }
 }
 
-/// Mixin for existing repositories that want CRUD functionality
-mixin CRUD<T> on Repository {
-  late final Store store;
-  late final Box<T> crud;
+// /// Mixin for existing repositories that want CRUD functionality
+// mixin CRUD<T> on Repository {
+//   late final Store store;
+//   late final Box<T> crud;
 
-  void initCrud() {
-    store = get<Store>();
-    crud = store.box<T>();
-  }
+//   void initCrud() {
+//     store = get<Store>();
+//     crud = store.box<T>();
+//   }
 
-  Iterable<T> getAll() => crud.getAll();
-  T? getById(int id) => crud.get(id);
+//   Iterable<T> getAll() => crud.getAll();
+//   T? getById(int id) => crud.get(id);
 
-  void put(T entity) {
-    crud.put(entity);
-    notifyListeners();
-  }
+//   void put(T entity) {
+//     crud.put(entity);
+//     notifyListeners();
+//   }
 
-  void remove(T entity) {
-    final id = (entity as dynamic).id;
-    if (id != null) {
-      crud.remove(id);
-      notifyListeners();
-    }
-  }
+//   void remove(T entity) {
+//     final id = (entity as dynamic).id;
+//     if (id != null) {
+//       crud.remove(id);
+//       notifyListeners();
+//     }
+//   }
 
-  void removeAll() {
-    crud.removeAll();
-    notifyListeners();
-  }
+//   void removeAll() {
+//     crud.removeAll();
+//     notifyListeners();
+//   }
 
-  int get length => crud.count();
+//   int get length => crud.count();
 
-  Stream<List<T>> watchChanges() {
-    return crud
-        .query()
-        .watch(triggerImmediately: true)
-        .map((query) => query.find());
-  }
-}
+//   Stream<List<T>> watchChanges() {
+//     return crud
+//         .query()
+//         .watch(triggerImmediately: true)
+//         .map((query) => query.find());
+//   }
+// }

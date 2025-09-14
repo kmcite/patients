@@ -1,4 +1,3 @@
-// import 'package:patients/main.dart';
+import 'package:navigation_builder/navigation_builder.dart';
 
-// final navigator = RM.navigate;
-// final scaffold = RM.scaffold;
+final navigator = NavigationBuilder.navigate;

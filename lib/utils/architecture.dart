@@ -222,10 +222,10 @@ abstract class Bloc extends ChangeNotifier {
 }
 
 /// -------------------------------
-/// BlocWidget - Simple stateful widget with bloc
+/// Feature - Simple stateful widget with bloc
 /// -------------------------------
-abstract class BlocWidget<T extends Bloc> extends StatefulWidget {
-  const BlocWidget({super.key});
+abstract class Feature<T extends Bloc> extends StatefulWidget {
+  const Feature({super.key});
 
   /// Create the bloc instance
   T createBloc();
@@ -234,10 +234,10 @@ abstract class BlocWidget<T extends Bloc> extends StatefulWidget {
   Widget build(BuildContext context, T bloc);
 
   @override
-  State<StatefulWidget> createState() => _BlocWidgetState<T>();
+  State<StatefulWidget> createState() => _FeatureState<T>();
 }
 
-class _BlocWidgetState<T extends Bloc> extends State<BlocWidget<T>> {
+class _FeatureState<T extends Bloc> extends State<Feature<T>> {
   late final T bloc;
 
   void _listener() {
