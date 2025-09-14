@@ -89,15 +89,15 @@ class UserBloc extends Bloc {
   // }
 }
 
-class UserPage extends UI<UserBloc> {
+class UserPage extends Feature<UserBloc> {
   const UserPage({super.key});
 
   @override
   UserBloc create() => UserBloc();
 
   @override
-  Widget build(context, bloc) {
-    final duration = bloc.jobDuration;
+  Widget build(context, controller) {
+    final duration = controller.jobDuration;
     return FScaffold(
       header: FHeader.nested(
         prefixes: [
@@ -106,27 +106,28 @@ class UserPage extends UI<UserBloc> {
             onPress: () => navigator.back(),
           )
         ],
-        title: Text(bloc.name),
+        title: Text(controller.name),
       ),
       child: Column(
         children: [
           FTextField(
             label: Text('Name'),
-            initialText: bloc.name,
-            onChange: bloc.setName,
+            initialText: controller.name,
+            onChange: controller.setName,
           ).pad(),
           FButton(
-            onPress: () => bloc.toggleShowDurationIn(),
-            child: 'Showing in: ${bloc.showDurationIn.name}, Toggle?'.text(),
+            onPress: () => controller.toggleShowDurationIn(),
+            child:
+                'Showing in: ${controller.showDurationIn.name}, Toggle?'.text(),
           ).pad(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              Text('Job Started on ${bloc.jobStartedOn.format}'),
+              Text('Job Started on ${controller.jobStartedOn.format}'),
               const SizedBox(height: 8),
               Text(
-                switch (bloc.showDurationIn) {
+                switch (controller.showDurationIn) {
                   ShowDurationIn.years =>
                     '${(duration.inDays / 365).toStringAsFixed(2)} years',
                   ShowDurationIn.months =>
@@ -143,12 +144,12 @@ class UserPage extends UI<UserBloc> {
                 onPress: () async {
                   final selected = await showDatePicker(
                     context: context,
-                    firstDate: bloc.jobStartedOn,
+                    firstDate: controller.jobStartedOn,
                     lastDate: DateTime.now(),
                   );
 
                   if (selected != null) {
-                    bloc.setJobStartedOn(selected);
+                    controller.setJobStartedOn(selected);
                   }
                 },
                 prefix: const Icon(Icons.update),

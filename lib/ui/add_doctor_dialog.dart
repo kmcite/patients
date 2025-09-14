@@ -41,11 +41,11 @@ class AddDoctorDialogBloc extends Bloc {
   }
 }
 
-class AddDoctorDialog extends UI<AddDoctorDialogBloc> {
+class AddDoctorDialog extends Feature<AddDoctorDialogBloc> {
   const AddDoctorDialog({super.key});
 
   @override
-  Widget build(BuildContext context, bloc) {
+  Widget build(BuildContext context, controller) {
     return FDialog(
       title: 'Create Doctor'.text(),
       body: Column(

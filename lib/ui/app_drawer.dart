@@ -4,14 +4,14 @@ import 'package:patients/ui/settings_page.dart';
 
 class AppDrawerBloc extends Bloc {}
 
-class AppDrawer extends UI<AppDrawerBloc> {
+class AppDrawer extends Feature<AppDrawerBloc> {
   @override
   AppDrawerBloc create() => AppDrawerBloc();
 
   const AppDrawer({super.key});
 
   @override
-  Widget build(context, bloc) {
+  Widget build(context, controller) {
     return FScaffold(
       header: FHeader(
         title: Column(

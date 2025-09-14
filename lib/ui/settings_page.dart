@@ -29,33 +29,25 @@ class SettingsBloc extends Bloc {
     hospitalRepository(hospital.copyWith(info: name));
   }
 
-  // void restoreInvestigations() {}
-  // void toggleThemeMode() {
-  //   // darkRepository.state = !dark;
-  // }
-  void logout() {
-    // authentication = Authentication();
-    // navigator.toAndRemoveUntil(LoginPage());
-  }
+  void restoreInvestigations() {}
+  void toggleThemeMode() {}
+  void logout() {}
 
-  // final authentication = authenticationRepository.authentication;
   String get clinicName => settingsRepository.clinicName;
-  ThemeMode get themeMode => settingsRepository.themeModeToggler();
-
-  bool get dark => settingsRepository.dark;
+  ThemeMode get themeMode => settingsRepository.themeMode;
 
   void setThemeMode(ThemeMode mode) {
     settingsRepository.setThemeMode(mode);
   }
 }
 
-class SettingsPage extends UI<SettingsBloc> {
+class SettingsPage extends Feature<SettingsBloc> {
   @override
   SettingsBloc create() => SettingsBloc();
 
   const SettingsPage({super.key});
   @override
-  Widget build(context, bloc) {
+  Widget build(context, controller) {
     return FScaffold(
       header: FHeader.nested(
         title: const Text('Settings'),
@@ -67,7 +59,7 @@ class SettingsPage extends UI<SettingsBloc> {
         ],
         suffixes: [
           FButton.icon(
-            onPress: () => bloc.logout(),
+            onPress: () => controller.logout(),
             child: Icon(FIcons.logOut),
           )
         ],
@@ -84,20 +76,20 @@ class SettingsPage extends UI<SettingsBloc> {
                 return FTile(
                   title: mode.name.toUpperCase().text(),
                   onPress: () {
-                    bloc.setThemeMode(mode);
+                    controller.setThemeMode(mode);
                   },
                 );
               },
             ),
             child: FTile(
-              title: (bloc.themeMode.name.toUpperCase()).text(),
+              title: (controller.themeMode.name.toUpperCase()).text(),
             ),
           ),
           FDivider(),
           FTextField(
             label: Text('Clinic / Hospital Name'),
-            initialText: bloc.hospital.name,
-            onChange: bloc.changeHospitalName,
+            initialText: controller.hospital.name,
+            onChange: controller.changeHospitalName,
           ).pad(),
           FDivider(),
           FButton(

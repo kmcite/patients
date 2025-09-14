@@ -1,9 +1,7 @@
 import 'package:patients/domain/models/hospital.dart';
-import 'package:patients/main.dart';
+import 'package:patients/utils/hive.dart';
 
-final HospitalRepository hospitalRepository = HospitalRepository();
-
-class HospitalRepository extends Repository {
+class HospitalRepository extends HiveRepository<Hospital> {
   Hospital hospital = Hospital();
   Hospital call([Hospital? hosp]) {
     if (hosp != null) {

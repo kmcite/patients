@@ -10,8 +10,7 @@ import '../../main.dart';
 
 class HomeBloc extends Bloc {
   late SettingsRepository settingsRepository = watch();
-  bool get dark => settingsRepository.dark;
-
+  bool get dark => MediaQuery.of(context).platformBrightness == Brightness.dark;
   int get patientsCount => 0;
 
   @override
@@ -19,18 +18,22 @@ class HomeBloc extends Bloc {
     FlutterNativeSplash.remove();
   }
 
-  void toggleThemeMode() {
-    settingsRepository.toggle();
+  void toggleDark() {
+    if (dark) {
+      settingsRepository.setThemeMode(ThemeMode.light);
+    } else {
+      settingsRepository.setThemeMode(ThemeMode.dark);
+    }
   }
 }
 
-class HomePage extends UI<HomeBloc> {
+class HomePage extends Feature<HomeBloc> {
   @override
   HomeBloc create() => HomeBloc();
 
   const HomePage({super.key});
   @override
-  Widget build(BuildContext context, bloc) {
+  Widget build(BuildContext context, controller) {
     return FScaffold(
       header: FHeader.nested(
         title: 'HOME'.text(),
@@ -50,8 +53,8 @@ class HomePage extends UI<HomeBloc> {
             },
           ),
           FButton.icon(
-            onPress: bloc.toggleThemeMode,
-            child: Icon(switch (bloc.dark) {
+            onPress: controller.toggleDark,
+            child: Icon(switch (controller.dark) {
               false => FIcons.sun,
               true => FIcons.moon,
             }),
@@ -76,7 +79,7 @@ class HomePage extends UI<HomeBloc> {
                   children: [
                     Text('All attended patients'),
                     Text(
-                      '${bloc.patientsCount}',
+                      '${controller.patientsCount}',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

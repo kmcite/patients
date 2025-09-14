@@ -2,6 +2,8 @@ import 'package:objectbox/objectbox.dart';
 
 import 'architecture.dart';
 
+abstract class CrudRepository<T> = Repository<T> with CRUD<T>;
+
 mixin CRUD<T> on Repository<T> {
   late final store = serve<Store>();
   late final Box<T> crud = store.box<T>();

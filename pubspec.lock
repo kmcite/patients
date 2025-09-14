@@ -515,14 +515,14 @@ packages:
   manager:
     dependency: "direct main"
     description:
-      path: "D://applications//manager//manager"
+      path: "D://03 Projects//applications//manager//manager"
       relative: false
     source: path
     version: "3.0.0"
   manager_client:
     dependency: transitive
     description:
-      path: "D://applications//manager//manager_client"
+      path: "D://03 Projects//applications//manager//manager_client"
       relative: false
     source: path
     version: "0.0.0"
