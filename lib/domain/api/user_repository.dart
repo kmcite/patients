@@ -1,7 +1,7 @@
-import 'package:patients/main.dart';
+import 'package:patients/domain/models/user.dart';
+import 'package:patients/utils/architecture.dart';
 
 class UserRepository extends Repository {
-  UserRepository();
   var user = User();
   var showDurationInToggler = Toggler(ShowDurationIn.values);
 
@@ -27,8 +27,6 @@ class UserRepository extends Repository {
 
   ShowDurationIn get showDurationIn => showDurationInToggler();
 }
-
-final userRepository = UserRepository();
 
 class Toggler<T> {
   final List<T> _values;

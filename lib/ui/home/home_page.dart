@@ -1,22 +1,25 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:forui/forui.dart';
 import 'package:patients/domain/api/settings_repository.dart';
-import 'package:patients/ui/app_drawer.dart';
-import 'package:patients/ui/personal/user_page.dart';
-
-import '../../main.dart';
-
-// Hospital get hospital => hospitalRepository.value;
-// int get count => patientsRepository.count();
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/utils/architecture.dart';
 
 class HomeBloc extends Bloc {
-  late SettingsRepository settingsRepository = watch();
-  bool get dark => MediaQuery.of(context).platformBrightness == Brightness.dark;
-  int get patientsCount => 0;
+  late final SettingsRepository settingsRepository;
+  late final PatientsRepository patientsRepository;
 
   @override
   void initState() {
+    settingsRepository = watch<SettingsRepository>();
+    patientsRepository = watch<PatientsRepository>();
     FlutterNativeSplash.remove();
   }
+
+  bool get dark => settingsRepository.themeMode == ThemeMode.dark;
+  int get patientsCount => patientsRepository.patients.hasData
+      ? patientsRepository.patients.data!.length
+      : 0;
 
   void toggleDark() {
     if (dark) {
@@ -27,38 +30,36 @@ class HomeBloc extends Bloc {
   }
 }
 
-class HomePage extends Feature<HomeBloc> {
-  @override
-  HomeBloc create() => HomeBloc();
-
+class HomePage extends BlocWidget<HomeBloc> {
   const HomePage({super.key});
+
   @override
-  Widget build(BuildContext context, controller) {
+  HomeBloc createBloc() => HomeBloc();
+
+  @override
+  Widget build(BuildContext context, HomeBloc bloc) {
     return FScaffold(
       header: FHeader.nested(
-        title: 'HOME'.text(),
+        title: const Text('HOME'),
         prefixes: [
           FButton.icon(
-            child: Icon(FIcons.menu),
+            child: const Icon(FIcons.menu),
             onPress: () {
-              navigator.to(AppDrawer());
+              // TODO: Open drawer
             },
           ),
         ],
         suffixes: [
           FButton.icon(
-            child: Icon(FIcons.personStanding),
+            child: const Icon(FIcons.personStanding),
             onPress: () {
-              navigator.to(UserPage());
+              // TODO: Navigate to user page
             },
           ),
           FButton.icon(
-            onPress: controller.toggleDark,
-            child: Icon(switch (controller.dark) {
-              false => FIcons.sun,
-              true => FIcons.moon,
-            }),
-          ).pad(right: 8),
+            onPress: bloc.toggleDark,
+            child: Icon(bloc.dark ? FIcons.moon : FIcons.sun),
+          ),
         ],
       ),
       child: SingleChildScrollView(
@@ -68,113 +69,108 @@ class HomePage extends Feature<HomeBloc> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               FCard(
-                subtitle: Row(
+                subtitle: const Row(
                   children: [
-                    Icon(FIcons.badgeInfo).pad(),
-                    Text('INFOROMATION SYSTEM').pad(),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('All attended patients'),
-                    Text(
-                      '${controller.patientsCount}',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(FIcons.badgeInfo),
                     ),
-                  ],
-                ).pad(),
-              ),
-              SizedBox(height: 16),
-              FCard(
-                subtitle: Row(
-                  children: [
-                    Icon(
-                      FIcons.hospital,
-                    ).pad(),
-                    // hospital.name.text().pad(),
+                    Text('INFORMATION SYSTEM'),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // hospital.city.text(),
-                    // hospital.info.text(),
-                  ],
-                ).pad(),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('All attended patients'),
+                      Text(
+                        '${bloc.patientsCount}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               FCard(
-                subtitle: Row(
+                subtitle: const Row(
                   children: [
-                    Icon(
-                      FIcons.hospital,
-                    ).pad(),
-                    'QUICK ACTIONS'.text().pad(),
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(FIcons.hospital),
+                    ),
+                    Text('HOSPITAL INFO'),
+                  ],
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Hospital Management System'),
+                      Text('Emergency and Trauma Center'),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              FCard(
+                subtitle: const Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: Icon(FIcons.zap),
+                    ),
+                    Text('QUICK ACTIONS'),
                   ],
                 ),
                 child: GridView.count(
                   crossAxisCount: 2,
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   childAspectRatio: 3 / 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                   children: [
-                    // _buildActionButton(context, FIcons.user, 'Patients',
-                    //     () => navigator.to(PatientsPage())),
-                    // _buildActionButton(
-                    //   context,
-                    //   FIcons.cassetteTape,
-                    //   'Types',
-                    //   () => navigator.to(PatientTypesPage()),
-                    // ),
-                    // _buildActionButton(
-                    //   context,
-                    //   FIcons.pictureInPicture,
-                    //   'Pictures',
-                    //   () => navigator.to(const PicturesPage()),
-                    // ),
-                    // _buildActionButton(
-                    //   context,
-                    //   FIcons.settings,
-                    //   'Settings',
-                    //   () => navigator.to(SettingsPage()),
-                    // ),
-                    // _buildActionButton(
-                    //   context,
-                    //   FIcons.calendar,
-                    //   'Duty Roster',
-                    //   () => navigator.to(const DutyRoster()),
-                    // ),
+                    _buildActionButton(
+                      context,
+                      FIcons.user,
+                      'Patients',
+                      () {
+                        // TODO: Navigate to patients page
+                      },
+                    ),
+                    _buildActionButton(
+                      context,
+                      FIcons.settings,
+                      'Settings',
+                      () {
+                        // TODO: Navigate to settings page
+                      },
+                    ),
                     _buildActionButton(
                       context,
                       FIcons.file,
                       'Investigations',
                       () {
-                        // navigator.to(InvestigationsPage());
+                        // TODO: Navigate to investigations page
+                      },
+                    ),
+                    _buildActionButton(
+                      context,
+                      FIcons.calendar,
+                      'Duty Roster',
+                      () {
+                        // TODO: Navigate to duty roster page
                       },
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 16),
-              // FCard(
-              //   subtitle: Row(
-              //     children: [
-              //       Icon(
-              //         FIcons.hospital,
-              //       ).pad(),
-              //       Text(
-              //         'Upcoming Duties',
-              //       ).pad(),
-              //     ],
-              //   ),
-              //   child: UpcomingDuties(),
-              // ),
             ],
           ),
         ),
@@ -194,7 +190,7 @@ class HomePage extends Feature<HomeBloc> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: 32),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(title, textAlign: TextAlign.center),
         ],
       ),

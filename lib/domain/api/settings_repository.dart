@@ -1,7 +1,9 @@
-import 'package:patients/main.dart';
+import 'package:flutter/material.dart';
+import 'package:patients/utils/architecture.dart';
 
 class SettingsRepository extends Repository {
   ThemeMode themeMode = ThemeMode.system;
+  String clinicName = 'Adn Opd';
 
   void setThemeMode(ThemeMode value) {
     themeMode = value;
@@ -22,10 +24,6 @@ class SettingsRepository extends Repository {
     }
     notifyListeners();
   }
-
-  /// Clinic Name
-
-  String clinicName = 'Adn Opd';
 
   void setClinicName(String value) {
     clinicName = value;

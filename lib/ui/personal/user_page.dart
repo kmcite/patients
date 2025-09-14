@@ -1,165 +1,115 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:intl/intl.dart';
 import 'package:patients/domain/api/user_repository.dart';
-import 'package:patients/main.dart';
-
-// typedef UserState = ({String userName});
-
-// class UserEvent {}
-
-// class UserNameChangedEvent extends UserEvent {
-//   final String userName;
-//   UserNameChangedEvent(this.userName);
-// }
-
-// class ToggleShowDurationInEvent extends UserEvent {}
-
-// class UpdateJobStartedOnEvent extends UserEvent {
-//   BuildContext context;
-//   UpdateJobStartedOnEvent(this.context);
-// }
-
-// final userBloc = UserBloc();
+import 'package:patients/domain/models/user.dart';
+import 'package:patients/utils/architecture.dart';
 
 class UserBloc extends Bloc {
-  late UserRepository userRepository = watch();
+  late final UserRepository userRepository;
 
-  late final setName = userRepository.setName;
-  late final setJobStartedOn = userRepository.setJobStartedOn;
-  late final toggleShowDurationIn = userRepository.toggleShowDurationIn;
+  @override
+  void initState() {
+    userRepository = watch<UserRepository>();
+  }
 
   Duration get jobDuration => userRepository.user.jobDuration;
   String get name => userRepository.user.name;
   ShowDurationIn get showDurationIn => userRepository.showDurationIn;
   DateTime get jobStartedOn => userRepository.user.jobStartedOn;
 
-  // UserBloc() {
-  //   on<UserNameChangedEvent>(
-  //     (event) {
-  //       userRepository.updateUser(state..name = event.userName);
-  //     },
-  //   );
-  //   on<ToggleShowDurationInEvent>(
-  //     (event) {
-  //       final sdi = switch (state.showDurationIn) {
-  //         ShowDurationIn.seconds => ShowDurationIn.minutes,
-  //         ShowDurationIn.minutes => ShowDurationIn.hours,
-  //         ShowDurationIn.hours => ShowDurationIn.days,
-  //         ShowDurationIn.days => ShowDurationIn.months,
-  //         ShowDurationIn.months => ShowDurationIn.years,
-  //         ShowDurationIn.years => ShowDurationIn.seconds,
-  //       };
-  //       userRepository.updateUser(state..showDurationIn = sdi);
-  //     },
-  //   );
-  //   on<UpdateJobStartedOnEvent>(
-  //     (event) async {
-  //       final selectedDateTime = await showDatePicker(
-  //         context: event.context,
-  //         initialDate: state.jobStartedOn,
-  //         firstDate: DateTime(1950),
-  //         lastDate: DateTime.now(),
-  //       );
-  //       if (selectedDateTime != null) {
-  //         userRepository.updateUser(state..jobStartedOn = selectedDateTime);
-  //       }
-  //     },
-  //   );
-  //   _subscription = userRepository().listen((user) => emit(user));
-  // }
-  // StreamSubscription? _subscription;
-  // @override
-  // get initialState => userRepository.user();
-  // @override
-  // void dispose() {
-  //   _subscription?.cancel();
-  //   super.dispose();
-  // }
-
-  // void setJobStarted(BuildContext context) async {
-  //   final selected = await showDatePicker(
-  //     context: context,
-  //     firstDate: userRepository.user().jobStartedOn,
-  //     lastDate: DateTime.now(),
-  //   );
-
-  //   if (selected != null) {
-  //     // userBloc(UpdateJobStartedOnEvent(context));
-  //     userRepository.setJobStartedOn(selected);
-  //   }
-  // }
+  void setName(String name) => userRepository.setName(name);
+  void setJobStartedOn(DateTime date) => userRepository.setJobStartedOn(date);
+  void toggleShowDurationIn() => userRepository.toggleShowDurationIn();
 }
 
-class UserPage extends Feature<UserBloc> {
+class UserPage extends BlocWidget<UserBloc> {
   const UserPage({super.key});
 
   @override
-  UserBloc create() => UserBloc();
+  UserBloc createBloc() => UserBloc();
 
   @override
-  Widget build(context, controller) {
-    final duration = controller.jobDuration;
+  Widget build(BuildContext context, UserBloc bloc) {
+    final duration = bloc.jobDuration;
     return FScaffold(
       header: FHeader.nested(
         prefixes: [
           FButton.icon(
-            child: Icon(FIcons.x),
-            onPress: () => navigator.back(),
+            child: const Icon(FIcons.x),
+            onPress: () => Navigator.of(context).pop(),
           )
         ],
-        title: Text(controller.name),
+        title: Text(bloc.name),
       ),
-      child: Column(
-        children: [
-          FTextField(
-            label: Text('Name'),
-            initialText: controller.name,
-            onChange: controller.setName,
-          ).pad(),
-          FButton(
-            onPress: () => controller.toggleShowDurationIn(),
-            child:
-                'Showing in: ${controller.showDurationIn.name}, Toggle?'.text(),
-          ).pad(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 16),
-              Text('Job Started on ${controller.jobStartedOn.format}'),
-              const SizedBox(height: 8),
-              Text(
-                switch (controller.showDurationIn) {
-                  ShowDurationIn.years =>
-                    '${(duration.inDays / 365).toStringAsFixed(2)} years',
-                  ShowDurationIn.months =>
-                    '${(duration.inDays / 30).toStringAsFixed(2)} months',
-                  ShowDurationIn.days => '${duration.inDays} days',
-                  ShowDurationIn.hours => '${duration.inHours} hours',
-                  ShowDurationIn.minutes => '${duration.inMinutes} minutes',
-                  ShowDurationIn.seconds => '${duration.inSeconds} seconds',
-                },
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 16),
-              FButton(
-                onPress: () async {
-                  final selected = await showDatePicker(
-                    context: context,
-                    firstDate: controller.jobStartedOn,
-                    lastDate: DateTime.now(),
-                  );
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            FTextField(
+              label: const Text('Name'),
+              initialText: bloc.name,
+              onChange: bloc.setName,
+            ),
+            const SizedBox(height: 16),
+            FButton(
+              onPress: bloc.toggleShowDurationIn,
+              child: Text('Showing in: ${bloc.showDurationIn.name}, Toggle?'),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16),
+                  Text('Job Started on ${bloc.jobStartedOn.format}'),
+                  const SizedBox(height: 8),
+                  Text(
+                    _formatDuration(duration, bloc.showDurationIn),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  FButton(
+                    onPress: () async {
+                      final selected = await showDatePicker(
+                        context: context,
+                        initialDate: bloc.jobStartedOn,
+                        firstDate: DateTime(1950),
+                        lastDate: DateTime.now(),
+                      );
 
-                  if (selected != null) {
-                    controller.setJobStartedOn(selected);
-                  }
-                },
-                prefix: const Icon(Icons.update),
-                child: const Text('Update'),
+                      if (selected != null) {
+                        bloc.setJobStartedOn(selected);
+                      }
+                    },
+                    prefix: const Icon(Icons.update),
+                    child: const Text('Update Job Start Date'),
+                  ),
+                ],
               ),
-            ],
-          ).pad(),
-        ],
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  String _formatDuration(Duration duration, ShowDurationIn showIn) {
+    switch (showIn) {
+      case ShowDurationIn.years:
+        return '${(duration.inDays / 365).toStringAsFixed(2)} years';
+      case ShowDurationIn.months:
+        return '${(duration.inDays / 30).toStringAsFixed(2)} months';
+      case ShowDurationIn.days:
+        return '${duration.inDays} days';
+      case ShowDurationIn.hours:
+        return '${duration.inHours} hours';
+      case ShowDurationIn.minutes:
+        return '${duration.inMinutes} minutes';
+      case ShowDurationIn.seconds:
+        return '${duration.inSeconds} seconds';
+    }
   }
 }
 

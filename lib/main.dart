@@ -6,7 +6,9 @@ import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/api/settings_repository.dart';
 import 'package:patients/domain/api/user_repository.dart';
+import 'package:patients/objectbox.g.dart';
 import 'package:patients/ui/app_state_bloc.dart';
+import 'package:patients/ui/home/home_page.dart';
 import 'package:patients/ui/login_page.dart';
 import 'package:patients/utils/architecture.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +23,11 @@ export 'package:freezed_annotation/freezed_annotation.dart';
 export 'package:intl/intl.dart' hide TextDirection;
 export 'package:objectbox/objectbox.dart';
 export 'package:path_provider/path_provider.dart';
+
+// Add missing imports for main.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:path_provider/path_provider.dart';
 export 'package:patients/domain/models/user.dart';
 export 'package:patients/ui/home/home_page.dart';
 export 'package:patients/domain/api/calculate_total_duty_hours.dart';
@@ -36,12 +43,12 @@ export 'ui/patients/patients/patients_page.dart';
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
+
   final appInfo = await PackageInfo.fromPlatform();
   final path = await getApplicationDocumentsDirectory();
   final prefs = await SharedPreferences.getInstance();
   final store = await openStore(directory: join(path.path, appInfo.appName));
-  
+
   // Register dependencies using new architecture
   register<SharedPreferences>(prefs);
   register<Store>(store);
@@ -57,7 +64,7 @@ void main() async {
 
 class App extends BlocWidget<AppStateBloc> {
   const App({super.key});
-  
+
   @override
   AppStateBloc createBloc() => AppStateBloc();
 

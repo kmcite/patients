@@ -86,7 +86,6 @@ class Resource<T> {
 /// -------------------------------
 class Locator {
   final Map<Type, dynamic> _instances = {};
-  final Set<Type> _resolving = {};
 
   /// Register instance
   void register<T>(T instance, {bool replace = false}) {

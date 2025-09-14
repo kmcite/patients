@@ -1,91 +1,80 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-
-import '../main.dart';
+import 'package:patients/utils/architecture.dart';
 
 class AddDoctorDialogBloc extends Bloc {
-  // final nameRM = RM.injectTextEditing();
-  // final descriptionRM = RM.injectTextEditing();
-  // final passwordRM = RM.injectTextEditing();
-  // final emailRM = RM.injectTextEditing();
+  final nameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final passwordController = TextEditingController();
+  final emailController = TextEditingController();
 
-  void okay() {
-    // final doctor = Doctor()
-    //   ..name = nameRM.text
-    //   ..description = descriptionRM.text
-    //   ..password = passwordRM.text
-    //   ..email = emailRM.text;
-    // final isEmailTaken = doctorsRepository.getAll().any(
-    //       (doctor) {
-    //         return doctor.email == emailRM.text;
-    //       },
-    //     ) ||
-    //     patientsRepository.getAll().any(
-    //       (pt) {
-    //         return pt.email == emailRM.text;
-    //       },
-    //     );
-    // if (!isEmailTaken) {
-    //   doctorsRepository.put(doctor);
-    // } else {
-    //   scaffold.showSnackBar(
-    //     SnackBar(
-    //       content: '${emailRM.text} is already taken'.text(),
-    //     ),
-    //   );
-    // }
-    // cancel();
+  void okay(BuildContext context) {
+    // TODO: Implement doctor creation logic
+    // For now, just close the dialog
+    Navigator.of(context).pop();
   }
 
-  void cancel() {
-    navigator.back();
+  void cancel(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    passwordController.dispose();
+    emailController.dispose();
+    super.dispose();
   }
 }
 
-class AddDoctorDialog extends Feature<AddDoctorDialogBloc> {
+class AddDoctorDialog extends BlocWidget<AddDoctorDialogBloc> {
   const AddDoctorDialog({super.key});
 
   @override
-  Widget build(BuildContext context, controller) {
+  AddDoctorDialogBloc createBloc() => AddDoctorDialogBloc();
+
+  @override
+  Widget build(BuildContext context, AddDoctorDialogBloc bloc) {
     return FDialog(
-      title: 'Create Doctor'.text(),
+      title: const Text('Create Doctor'),
       body: Column(
         children: [
-          // FTextField(
-          //   label: 'name'.text(),
-          //   controller: nameRM.controller,
-          // ),
-          // FTextField(
-          //   label: 'description'.text(),
-          //   controller: descriptionRM.controller,
-          // ),
-          // FTextField(
-          //   label: 'email'.text(),
-          //   controller: emailRM.controller,
-          // ),
-          // FTextField(
-          //   label: 'password'.text(),
-          //   controller: passwordRM.controller,
-          // ),
+          FTextField(
+            label: const Text('Name'),
+            controller: bloc.nameController,
+          ),
+          const SizedBox(height: 16),
+          FTextField(
+            label: const Text('Description'),
+            controller: bloc.descriptionController,
+          ),
+          const SizedBox(height: 16),
+          FTextField(
+            label: const Text('Email'),
+            controller: bloc.emailController,
+          ),
+          const SizedBox(height: 16),
+          FTextField(
+            label: const Text('Password'),
+            controller: bloc.passwordController,
+            obscureText: true,
+          ),
         ],
       ),
       direction: Axis.horizontal,
       actions: [
-        // FButton.icon(
-        //   style: FButtonStyle.primary,
-        //   onPress: okay,
-        //   child: 'Okay'.text(),
-        // ),
-        // FButton.icon(
-        //   style: FButtonStyle.destructive,
-        //   onPress: cancel,
-        //   child: 'Cancel'.text(),
-        // ),
+        FButton(
+          style: FButtonStyle.primary(),
+          onPress: () => bloc.okay(context),
+          child: const Text('Create'),
+        ),
+        FButton(
+          style: FButtonStyle.destructive(),
+          onPress: () => bloc.cancel(context),
+          child: const Text('Cancel'),
+        ),
       ],
     );
-  }
-
-  @override
-  AddDoctorDialogBloc create() {
-    throw UnimplementedError();
   }
 }

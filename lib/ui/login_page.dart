@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manager/navigator.dart';
 import 'package:patients/domain/api/authentication_repository.dart';
 import 'package:patients/utils/architecture.dart';
 import 'package:patients/ui/home/home_page.dart';
@@ -6,7 +7,7 @@ import 'package:patients/ui/home/home_page.dart';
 /// Login Bloc - handles login logic and form state
 class LoginBloc extends Bloc {
   late final AuthenticationRepository authRepo;
-  
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -18,17 +19,15 @@ class LoginBloc extends Bloc {
 
   Future<void> login() async {
     if (!formKey.currentState!.validate()) return;
-    
+
     await authRepo.login(
       emailController.text.trim(),
       passwordController.text,
     );
-    
+
     // Navigate to home if login successful
     if (authRepo.isAuthenticated) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
+      navigator.to(HomePage());
     }
   }
 
@@ -72,7 +71,7 @@ class LoginPage extends BlocWidget<LoginBloc> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               // Password Field
               TextFormField(
                 controller: bloc.passwordController,
@@ -87,7 +86,7 @@ class LoginPage extends BlocWidget<LoginBloc> {
                 },
               ),
               const SizedBox(height: 24),
-              
+
               // Login Button with Resource state
               SizedBox(
                 width: double.infinity,

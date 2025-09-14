@@ -1,87 +1,91 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:patients/main.dart';
 import 'package:patients/ui/settings_page.dart';
+import 'package:patients/utils/architecture.dart';
 
-class AppDrawerBloc extends Bloc {}
+class AppDrawerBloc extends Bloc {
+  // Simple bloc for drawer - no specific logic needed
+}
 
-class AppDrawer extends Feature<AppDrawerBloc> {
-  @override
-  AppDrawerBloc create() => AppDrawerBloc();
-
+class AppDrawer extends BlocWidget<AppDrawerBloc> {
   const AppDrawer({super.key});
 
   @override
-  Widget build(context, controller) {
+  AppDrawerBloc createBloc() => AppDrawerBloc();
+
+  @override
+  Widget build(BuildContext context, AppDrawerBloc bloc) {
     return FScaffold(
       header: FHeader(
         title: Column(
           children: [
-            FAvatar.raw(
-              size: 120,
-              child: Icon(
-                FIcons.hospital,
-                size: 80,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: FAvatar.raw(
+                size: 120,
+                child: const Icon(
+                  FIcons.hospital,
+                  size: 80,
+                ),
               ),
-            ).pad(),
-            Text(
-              'Patients',
-              style: TextStyle(
-                fontSize: 24,
+            ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Patients',
+                style: TextStyle(fontSize: 24),
               ),
-            ).pad(),
+            ),
           ],
         ),
       ),
       child: FTileGroup(
         label: FButton.icon(
-          child: Icon(FIcons.x),
-          onPress: () => navigator.back(),
+          child: const Icon(FIcons.x),
+          onPress: () => Navigator.of(context).pop(),
         ),
         divider: FItemDivider.full,
         children: [
           FTile(
-            prefix: Icon(FIcons.user),
-            title: Text('Patients'),
+            prefix: const Icon(FIcons.user),
+            title: const Text('Patients'),
             onPress: () {
-              // navigator
-              // ..back()
-              // ..to(PatientsPage());
+              Navigator.of(context).pop();
+              // TODO: Navigate to patients page
             },
           ),
           FTile(
-            prefix: Icon(FIcons.type),
-            title: Text('Patient Types'),
+            prefix: const Icon(FIcons.type),
+            title: const Text('Patient Types'),
             onPress: () {
-              // navigator
-              // ..back()
-              // ..to(PatientTypesPage());
+              Navigator.of(context).pop();
+              // TODO: Navigate to patient types page
             },
           ),
           FTile(
-            prefix: Icon(FIcons.pictureInPicture2),
-            title: Text('Pictures'),
+            prefix: const Icon(FIcons.pictureInPicture2),
+            title: const Text('Pictures'),
             onPress: () {
-              //   navigator
-              //     ..back()
-              //     ..to(const PicturesPage());
+              Navigator.of(context).pop();
+              // TODO: Navigate to pictures page
             },
           ),
           FTile(
-            prefix: Icon(FIcons.settings2),
-            title: Text('Settings'),
+            prefix: const Icon(FIcons.settings2),
+            title: const Text('Settings'),
             onPress: () {
-              navigator
-                ..back()
-                ..to(SettingsPage());
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SettingsPage()),
+              );
             },
           ),
           FTile(
-            prefix: Icon(FIcons.calendar),
-            title: Text('Duty Roster'),
+            prefix: const Icon(FIcons.calendar),
+            title: const Text('Duty Roster'),
             onPress: () {
-              // navigator
-              // ..back()
-              // ..to(const DutyRoster());
+              Navigator.of(context).pop();
+              // TODO: Navigate to duty roster page
             },
           ),
         ],
