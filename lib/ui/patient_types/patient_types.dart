@@ -1,36 +1,3 @@
-// import 'dart:async';
-
-// import 'package:forui/forui.dart';
-// import 'package:patients/domain/api/patients_repository.dart';
-// import 'package:patients/main.dart';
-// import 'package:patients/domain/api/navigator.dart';
-// import 'package:patients/domain/models/patient_types.dart';
-// import 'package:patients/ui/patient_types/add_patient_type_dialog.dart';
-
-// /// STATE
-// typedef _PatientTypesState = ({List<PatientType> types});
-
-// /// EVENTS
-// class PatientTypesEvent {}
-
-// class NavigateToAddTypeDialogEvent extends PatientTypesEvent {}
-
-// class UpdatePatientTypeEvent extends PatientTypesEvent {
-//   final PatientType patientType;
-//   UpdatePatientTypeEvent(this.patientType);
-// }
-
-// class RemovePatientTypeEvent extends PatientTypesEvent {
-//   final int id;
-//   RemovePatientTypeEvent(this.id);
-// }
-
-// /// BLOC
-// final _patientTypes = _PatientTypes();
-
-// class _PatientTypes extends Bloc<void, _PatientTypesState> {
-//   StreamSubscription? _typesSubscription;
-//   _PatientTypes() {
 //     on<NavigateToAddTypeDialogEvent>(
 //       (event) {
 //         navigator.toDialog(AddPatientTypeDialog());
@@ -46,23 +13,40 @@
 //         patientTypesRepository.remove(event.id);
 //       },
 //     );
-//     _typesSubscription = patientTypesRepository.watch().listen(
-//       (types) {
-//         emit(
-//           (types: types),
-//         );
-//       },
-//     );
-//   }
 
-//   @override
-//   get initialState => (types: patientTypesRepository());
-//   @override
-//   void dispose() {
-//     _typesSubscription?.cancel();
-//     super.dispose();
-//   }
-// }
+import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
+import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/domain/models/patient_types.dart';
+import 'package:patients/utils/architecture.dart';
+
+@injectable
+class PatientTypesBloc extends Bloc<PatientTypesPage> {
+  late final patientTypesRepository = watch<PatientTypesRepository>();
+  void onPatientTypeAdded(PatientType patientType) {
+    patientTypesRepository.put(patientType);
+  }
+}
+
+class PatientTypesPage extends Feature<PatientTypesBloc> {
+  const PatientTypesPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Patient Types'),
+      ),
+      body: const Center(
+        child: Text('Patient Types Management - Coming Soon'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => controller.onPatientTypeAdded(PatientType()),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
 
 // /// UI
 // class PatientTypesPage extends UI {

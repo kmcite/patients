@@ -1,5 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:patients/domain/api/navigator.dart';
+
+import 'dependencies.dart';
 
 /// -------------------------------
 /// GLOBAL CONFIG
@@ -58,6 +61,39 @@ class Resource<T> {
     }
   }
 
+  /// Transform data without changing status
+  Resource<R> map<R>(R Function(T data) transform) {
+    final result = Resource<R>();
+    result.status = status;
+    result.error = error;
+    result.message = message;
+    if (hasData) {
+      result.data = transform(data as T);
+    }
+    return result;
+  }
+
+  /// Chain operations
+  Future<Resource<R>> then<R>(Future<R> Function(T data) operation) async {
+    if (!hasData) {
+      final result = Resource<R>();
+      result.status = status;
+      result.error = error;
+      result.message = message;
+      return result;
+    }
+
+    final result = Resource<R>();
+    result.setLoading();
+    try {
+      final newData = await operation(data as T);
+      result.setData(newData);
+    } catch (e, stack) {
+      result.setError(e, stack.toString());
+    }
+    return result;
+  }
+
   /// Build UI based on resource state
   Widget when({
     Widget Function()? loading,
@@ -82,100 +118,11 @@ class Resource<T> {
 }
 
 /// -------------------------------
-/// LOCATOR (simple service locator pattern)
-/// -------------------------------
-class Locator {
-  final Map<Type, dynamic> _instances = {};
-
-  /// Register instance
-  void register<T>(T instance, {bool replace = false}) {
-    final type = T;
-    if (_instances.containsKey(type) && !replace) {
-      throw Exception('$type already registered');
-    }
-    _instances[type] = instance;
-
-    // Auto-attach repositories
-    if (instance is Repository) {
-      instance.attach(this);
-    }
-
-    logInfo('Registered: $type');
-  }
-
-  /// Get instance
-  T get<T>() {
-    final type = T;
-    final instance = _instances[type];
-    if (instance != null) return instance as T;
-    throw Exception('$type not registered');
-  }
-
-  /// Check if registered
-  bool has<T>() => _instances.containsKey(T);
-
-  /// Unregister
-  void unregister<T>() {
-    final instance = _instances.remove(T);
-    if (instance is Repository) {
-      try {
-        instance.disposeRepository();
-      } catch (_) {}
-    }
-    logInfo('Unregistered: $T');
-  }
-
-  /// Clear all
-  void clear() {
-    for (var instance in _instances.values) {
-      if (instance is Repository) {
-        try {
-          instance.disposeRepository();
-        } catch (_) {}
-      }
-    }
-    _instances.clear();
-    logInfo('Locator cleared');
-  }
-}
-
-/// Global locator instance
-final locator = Locator();
-
-/// Convenience functions
-void register<T>(T instance, {bool replace = false}) =>
-    locator.register<T>(instance, replace: replace);
-T get<T>() => locator.get<T>();
-bool has<T>() => locator.has<T>();
-
-/// -------------------------------
 /// REPOSITORY base
-/// - attach(container) called on registration
 /// - mutable & change-notifier friendly
 /// -------------------------------
-abstract class Repository extends ChangeNotifier {
-  Locator? _locator;
 
-  /// Called when registered in locator
-  void attach(Locator locator) {
-    _locator = locator;
-    init();
-    logInfo('Repository attached: $runtimeType');
-  }
-
-  /// Override for initialization logic
-  void init() {}
-
-  /// Get dependency from locator
-  T get<T>() => (_locator ?? locator).get<T>();
-
-  void disposeRepository() {
-    try {
-      dispose();
-      logInfo('Disposed: $runtimeType');
-    } catch (_) {}
-  }
-}
+abstract class Repository extends ChangeNotifier {}
 
 /// -------------------------------
 /// BLOC base
@@ -184,8 +131,13 @@ abstract class Repository extends ChangeNotifier {
 /// - watch<T>() auto-subscribes + auto-disposes listeners
 /// - supports multiple watched repos (composition)
 /// -------------------------------
-abstract class Bloc extends ChangeNotifier {
+abstract class Bloc<U extends Widget> extends ChangeNotifier {
+  Navigation get navigator => get();
+
+  late BuildContext context;
+  late final U widget;
   final _disposers = <void Function()>[];
+  final _watchedRepos = <Repository>{};
   bool _disposed = false;
 
   /// Override for initialization logic
@@ -200,21 +152,26 @@ abstract class Bloc extends ChangeNotifier {
   /// Watch a repository (auto-subscribes to changes)
   T watch<T extends Repository>() {
     final repo = get<T>();
+
+    // Avoid duplicate listeners
+    if (_watchedRepos.contains(repo)) return repo;
+
     repo.addListener(notifyListeners);
+    _watchedRepos.add(repo);
     _disposers.add(() => repo.removeListener(notifyListeners));
-    logInfo('$runtimeType watching $T');
+    logInfo('$runtimeType watching $T $hashCode');
     return repo;
   }
-
-  /// Get dependency without watching
-  T get<T>() => locator.get<T>();
 
   @override
   void dispose() {
     if (_disposed) return;
     for (var disposer in _disposers) {
-      disposer();
+      try {
+        disposer();
+      } catch (_) {}
     }
+    _watchedRepos.clear();
     _disposed = true;
     logInfo('Disposed: $runtimeType');
     super.dispose();
@@ -224,105 +181,127 @@ abstract class Bloc extends ChangeNotifier {
 /// -------------------------------
 /// Feature - Simple stateful widget with bloc
 /// -------------------------------
-abstract class Feature<T extends Bloc> extends StatefulWidget {
+abstract class Feature<T extends Bloc<Feature<T>>> extends StatefulWidget {
   const Feature({super.key});
 
-  /// Create the bloc instance
-  T createBloc();
+  Navigation get navigator => get();
+  // T get controller => get();
+
+  /// Safe: returns the controller resolved & owned by the State.
+  /// Throws if accessed before the State has attached (avoid using in ctor).
+  T get controller {
+    final host = _featureStateExpando[this];
+    if (host == null) {
+      throw StateError(
+        'Controller not attached yet. Access `controller` after the widget is mounted (e.g. not in the constructor).',
+      );
+    }
+    return host.controller as T;
+  }
 
   /// Build UI with the bloc
-  Widget build(BuildContext context, T bloc);
+  Widget build(BuildContext context);
 
   @override
-  State<StatefulWidget> createState() => _FeatureState<T>();
+  State<StatefulWidget> createState() => _Feature<T>();
 }
 
-class _FeatureState<T extends Bloc> extends State<Feature<T>> {
-  late final T bloc;
+/// Expando maps widget instance -> its State (weakly)
+final Expando<_FeatureStateBase> _featureStateExpando =
+    Expando<_FeatureStateBase>();
+
+abstract class _FeatureStateBase {
+  Object? get controller;
+}
+
+class _Feature<T extends Bloc<Feature<T>>> extends State<Feature<T>>
+    implements _FeatureStateBase {
+  late final T _controller;
+
+  @override
+  T get controller => _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // resolve once (GetIt should be configured so T is a factory/@injectable)
+    _controller = get<T>();
+    _controller.init();
+    // register mapping widget -> this state
+    _featureStateExpando[widget] = this;
+    // listen & trigger rebuilds (assuming controller is a ChangeNotifier)
+    _controller.addListener(_listener);
+    _controller.widget = widget;
+    _controller.context = context;
+  }
+
+  @override
+  void didUpdateWidget(covariant Feature<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // move the expando entry from old widget instance to the new one
+    _featureStateExpando[oldWidget] = null;
+    _featureStateExpando[widget] = this;
+  }
 
   void _listener() {
     if (mounted) setState(() {});
   }
 
   @override
-  void initState() {
-    super.initState();
-    bloc = widget.createBloc()
-      ..init()
-      ..addListener(_listener);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return widget.build(context, bloc);
+    return widget.build(context);
   }
 
   @override
   void dispose() {
-    bloc.removeListener(_listener);
-    bloc.dispose();
+    _featureStateExpando[widget] = null;
+    controller.removeListener(_listener);
+    controller.dispose();
     super.dispose();
   }
 }
 
 /// -------------------------------
-/// Example usage
+/// NavigationX
 /// -------------------------------
-/*
-class UserRepository extends Repository {
-  final Resource<List<String>> users = Resource<List<String>>();
+extension NavigationX on StatelessWidget {
+  Navigation get navigator => get();
+}
 
-  Future<void> loadUsers() async {
-    await users.execute(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      return ['Alice', 'Bob', 'Charlie'];
-    });
-    notifyListeners();
+/// -------------------------------
+/// REACTIVE EXTENSIONS
+/// -------------------------------
+extension ResourceExtensions<T> on Resource<T> {
+  /// Combine with another resource
+  Resource<R> combine<U, R>(
+    Resource<U> other,
+    R Function(T first, U second) combiner,
+  ) {
+    final result = Resource<R>();
+
+    if (isLoading || other.isLoading) {
+      result.setLoading();
+    } else if (hasError) {
+      result.setError(error!, message);
+    } else if (other.hasError) {
+      result.setError(other.error!, other.message);
+    } else if (hasData && other.hasData) {
+      result.setData(combiner(data as T, other.data as U));
+    }
+
+    return result;
+  }
+
+  /// Filter data
+  Resource<T> where(bool Function(T data) predicate) {
+    if (!hasData) return this;
+
+    final result = Resource<T>();
+    if (predicate(data as T)) {
+      result.setData(data as T);
+    } else {
+      result.status = ResourceStatus.idle;
+    }
+    return result;
   }
 }
-
-class UserBloc extends Bloc {
-  late final UserRepository repo;
-
-  @override
-  void initState() {
-    repo = watch<UserRepository>();
-  }
-
-  void loadUsers() => repo.loadUsers();
-}
-
-class UserScreen extends BlocWidget<UserBloc> {
-  const UserScreen({super.key});
-
-  @override
-  UserBloc createBloc() => UserBloc();
-
-  @override
-  Widget build(BuildContext context, UserBloc bloc) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Users')),
-      body: bloc.repo.users.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        data: (users) => ListView(
-          children: users.map((user) => ListTile(title: Text(user))).toList(),
-        ),
-        error: (error, message) => Center(child: Text('Error: $error')),
-        empty: () => Center(
-          child: ElevatedButton(
-            onPressed: bloc.loadUsers,
-            child: const Text('Load Users'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void main() {
-  // Register dependencies
-  register<UserRepository>(UserRepository());
-  
-  runApp(MaterialApp(home: const UserScreen()));
-}
-*/

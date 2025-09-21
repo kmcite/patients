@@ -1,40 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:patients/domain/api/navigator.dart';
+import 'package:injectable/injectable.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/add_patient_dialog.dart';
+import 'package:patients/ui/new_quick_patient.dart';
+import 'package:patients/ui/patients/patient.dart';
 import 'package:patients/utils/architecture.dart';
 
-class PatientsPageBloc extends Bloc {
-  late final PatientsRepository patientsRepository;
-
-  @override
-  void initState() {
-    patientsRepository = watch<PatientsRepository>();
-  }
+@injectable
+class PatientsBloc extends Bloc<PatientsView> {
+  late final patientsRepository = watch<PatientsRepository>();
 
   List<Patient> get patients => patientsRepository.patients.hasData
       ? patientsRepository.patients.data!
       : [];
 
-  Future<void> addNewPatient(BuildContext context) async {
-    final result = await navigator.toDialog<Patient>(
-      const AddPatientDialog(),
-    );
-    if (result != null) {
-      // Patient was added successfully
-    }
+  void onPatientAdded(BuildContext context) {
+    navigator.toDialog<Patient>(const NewQuickPatientView());
   }
 }
 
-class PatientsPage extends Feature<PatientsPageBloc> {
-  const PatientsPage({super.key});
+class PatientsView extends Feature<PatientsBloc> {
+  const PatientsView({super.key});
 
   @override
-  PatientsPageBloc createBloc() => PatientsPageBloc();
-
-  @override
-  Widget build(BuildContext context, PatientsPageBloc bloc) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Patients'),
@@ -43,7 +32,7 @@ class PatientsPage extends Feature<PatientsPageBloc> {
           onPressed: () => navigator.back(),
         ),
       ),
-      body: bloc.patientsRepository.patients.when(
+      body: controller.patientsRepository.patients.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, message) => Center(
           child: Column(
@@ -58,7 +47,7 @@ class PatientsPage extends Feature<PatientsPageBloc> {
               Text('Error loading patients: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => bloc.patientsRepository.loadAll(),
+                onPressed: () => controller.patientsRepository.loadAll(),
                 child: const Text('Retry'),
               ),
             ],
@@ -89,7 +78,7 @@ class PatientsPage extends Feature<PatientsPageBloc> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: () => bloc.addNewPatient(context),
+                    onPressed: () => controller.onPatientAdded(context),
                     icon: const Icon(Icons.add),
                     label: const Text('Add Patient'),
                   ),
@@ -103,42 +92,41 @@ class PatientsPage extends Feature<PatientsPageBloc> {
             itemCount: patients.length,
             itemBuilder: (context, index) {
               final patient = patients[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Text(
-                      patient.name.isNotEmpty
-                          ? patient.name[0].toUpperCase()
-                          : 'P',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  child: Text(
+                    patient.name.isNotEmpty
+                        ? patient.name[0].toUpperCase()
+                        : 'P',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  title: Text(
-                    patient.name.isNotEmpty ? patient.name : 'Unnamed Patient',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (patient.email.isNotEmpty) Text(patient.email),
-                      if (patient.complaints.isNotEmpty)
-                        Text(
-                          patient.complaints,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to patient details
-                  },
                 ),
+                title: Text(
+                  patient.name.isNotEmpty ? patient.name : 'Unnamed Patient',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (patient.email.isNotEmpty) Text(patient.email),
+                    if (patient.complaints.isNotEmpty)
+                      Text(
+                        patient.complaints,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  navigator.to(
+                    PatientPage(patient: patient),
+                  );
+                },
               );
             },
           );
@@ -156,7 +144,7 @@ class PatientsPage extends Feature<PatientsPageBloc> {
               const Text('No patients found'),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: () => bloc.addNewPatient(context),
+                onPressed: () => controller.onPatientAdded(context),
                 icon: const Icon(Icons.add),
                 label: const Text('Add Patient'),
               ),
@@ -165,7 +153,7 @@ class PatientsPage extends Feature<PatientsPageBloc> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => bloc.addNewPatient(context),
+        onPressed: () => controller.onPatientAdded(context),
         child: const Icon(Icons.add),
       ),
     );

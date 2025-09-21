@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/patients/patient_page_2.dart';
+import 'package:patients/ui/patients/patient.dart';
+import 'package:patients/utils/architecture.dart';
 
-class PatientTile extends StatelessWidget {
+class EditPatientBloc extends Bloc<EditPatientView> {
+  late final patientsRepository = watch<PatientsRepository>();
+  late Patient patient = widget.patient;
+}
+
+class EditPatientView extends Feature<EditPatientBloc> {
   final Patient patient;
 
-  const PatientTile({super.key, required this.patient});
+  const EditPatientView({super.key, required this.patient});
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +40,7 @@ class PatientTile extends StatelessWidget {
         ),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PatientPage(patient.id),
-            ),
-          );
+          navigator.to(PatientPage(patient: patient));
         },
       ),
     );

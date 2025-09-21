@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:patients/domain/api/navigator.dart';
-import 'package:patients/ui/settings_page.dart';
+import 'package:injectable/injectable.dart';
+import 'package:patients/ui/appointments.dart';
+import 'package:patients/ui/investigations.dart';
+import 'package:patients/ui/medications.dart';
+import 'package:patients/ui/patient_types/patient_types.dart';
+import 'package:patients/ui/patients/patients.dart';
+import 'package:patients/ui/personal/duty_roster.dart';
+import 'package:patients/ui/settings.dart';
 import 'package:patients/utils/architecture.dart';
 
-class AppDrawerBloc extends Bloc {
+@injectable
+class AppDrawerBloc extends Bloc<AppDrawer> {
   // Simple bloc for drawer - no specific logic needed
 }
 
@@ -11,10 +18,7 @@ class AppDrawer extends Feature<AppDrawerBloc> {
   const AppDrawer({super.key});
 
   @override
-  AppDrawerBloc createBloc() => AppDrawerBloc();
-
-  @override
-  Widget build(BuildContext context, AppDrawerBloc bloc) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -24,8 +28,9 @@ class AppDrawer extends Feature<AppDrawerBloc> {
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => navigator.back(),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Column(
@@ -33,44 +38,23 @@ class AppDrawer extends Feature<AppDrawerBloc> {
           // Header Section
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.primary,
-                  theme.colorScheme.primary.withOpacity(0.8),
-                ],
-              ),
-            ),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
+              spacing: 8,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(60),
-                  ),
-                  child: Icon(
-                    Icons.local_hospital,
-                    size: 60,
-                    color: Colors.white,
-                  ),
+                Icon(
+                  Icons.local_hospital,
+                  size: 60,
                 ),
-                const SizedBox(height: 16),
                 Text(
                   'Patients Management',
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'Healthcare System',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(),
                 ),
               ],
             ),
@@ -81,74 +65,72 @@ class AppDrawer extends Feature<AppDrawerBloc> {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.people,
                   'Patients',
                   'Manage patient records',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to patients page
+                    navigator.back();
+                    navigator.to(const PatientsView());
                   },
                 ),
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.calendar_today,
                   'Appointments',
                   'Schedule and manage appointments',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to appointments page
+                    navigator.back();
+                    navigator.to(
+                        const AppointmentsPage()); // Navigate to appointments page
                   },
                 ),
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.science,
                   'Investigations',
                   'Lab tests and medical investigations',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to investigations page
+                    navigator.back();
+                    navigator.to(const InvestigationsPage());
                   },
                 ),
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.medication,
                   'Medications',
                   'Prescription and medication management',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to medications page
+                    navigator.back();
+                    navigator.to(
+                      const MedicationsPage(),
+                    ); // Navigate to medications page
                   },
                 ),
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.category,
                   'Patient Types',
                   'Manage patient categories',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to patient types page
+                    navigator.back();
+                    navigator.to(
+                      const PatientTypesPage(),
+                    ); // Navigate to patient types page
                   },
                 ),
-                _buildMenuItem(
-                  context,
+                MenuItemView(
                   Icons.schedule,
                   'Duty Roster',
                   'Staff duty scheduling',
                   () {
-                    Navigator.of(context).pop();
-                    // TODO: Navigate to duty roster page
+                    navigator.back();
+                    navigator.to(const DutyRoster());
                   },
                 ),
-                const Divider(),
-                _buildMenuItem(
-                  context,
+                const Divider(height: 0),
+                MenuItemView(
                   Icons.settings,
                   'Settings',
                   'App preferences and configuration',
                   () {
-                    Navigator.of(context).pop();
+                    navigator.back();
                     navigator.to(const SettingsPage());
                   },
                 ),
@@ -159,14 +141,24 @@ class AppDrawer extends Feature<AppDrawerBloc> {
       ),
     );
   }
+}
 
-  Widget _buildMenuItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    String subtitle,
-    VoidCallback onTap,
-  ) {
+class MenuItemView extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const MenuItemView(
+    this.icon,
+    this.title,
+    this.subtitle,
+    this.onTap, {
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
@@ -185,7 +177,7 @@ class AppDrawer extends Feature<AppDrawerBloc> {
       ),
       subtitle: Text(subtitle),
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
   }
 }

@@ -1,19 +1,23 @@
-import 'package:patients/domain/models/hospital.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class HospitalRepository extends Repository {
-  Hospital hospital = Hospital();
-
-  Hospital call([Hospital? hosp]) {
-    if (hosp != null) {
-      hospital = hosp;
-      notifyListeners();
-    }
-    return hospital;
+  String name = 'Emergency and Trauma Center';
+  String city = 'Dhaka';
+  String info = 'Emergency and Trauma Center';
+  void onNameChanged(String name) {
+    this.name = name;
+    notifyListeners();
   }
 
-  void updateHospital(Hospital newHospital) {
-    hospital = newHospital;
+  void onCityChanged(String city) {
+    this.city = city;
+    notifyListeners();
+  }
+
+  void onInfoChanged(String info) {
+    this.info = info;
     notifyListeners();
   }
 }

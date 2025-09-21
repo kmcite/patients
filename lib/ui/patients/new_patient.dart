@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
 import 'package:patients/utils/architecture.dart';
 
-class AddPatientBloc extends Bloc {
-  late final PatientsRepository patientsRepository;
+@injectable
+class NewPatientBloc extends Bloc<NewPatientView> {
+  late final PatientsRepository patientsRepository = watch();
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -16,13 +18,8 @@ class AddPatientBloc extends Bloc {
 
   bool isMale = true;
 
-  @override
-  void initState() {
-    patientsRepository = watch<PatientsRepository>();
-  }
-
-  void setGender(bool male) {
-    isMale = male;
+  void setGender(bool? male) {
+    isMale = male ?? true;
     notifyListeners();
   }
 
@@ -66,14 +63,11 @@ class AddPatientBloc extends Bloc {
   }
 }
 
-class AddPatientDialog extends Feature<AddPatientBloc> {
-  const AddPatientDialog({super.key});
+class NewPatientView extends Feature<NewPatientBloc> {
+  const NewPatientView({super.key});
 
   @override
-  AddPatientBloc createBloc() => AddPatientBloc();
-
-  @override
-  Widget build(BuildContext context, AddPatientBloc bloc) {
+  Widget build(BuildContext context) {
     return Dialog(
       child: Container(
         width: 500,
@@ -91,7 +85,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
 
               // Basic Information
               TextField(
-                controller: bloc.nameController,
+                controller: controller.nameController,
                 decoration: const InputDecoration(
                   labelText: 'Full Name *',
                   border: OutlineInputBorder(),
@@ -100,7 +94,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               const SizedBox(height: 16),
 
               TextField(
-                controller: bloc.emailController,
+                controller: controller.emailController,
                 decoration: const InputDecoration(
                   labelText: 'Email *',
                   border: OutlineInputBorder(),
@@ -110,7 +104,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               const SizedBox(height: 16),
 
               TextField(
-                controller: bloc.phoneController,
+                controller: controller.phoneController,
                 decoration: const InputDecoration(
                   labelText: 'Phone Number',
                   border: OutlineInputBorder(),
@@ -120,7 +114,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               const SizedBox(height: 16),
 
               TextField(
-                controller: bloc.ageController,
+                controller: controller.ageController,
                 decoration: const InputDecoration(
                   labelText: 'Age *',
                   border: OutlineInputBorder(),
@@ -132,31 +126,41 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               // Gender Selection
               Text('Gender', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: const Text('MALE'),
-                      value: true,
-                      groupValue: bloc.isMale,
-                      onChanged: (value) => bloc.setGender(value!),
+              RadioGroup<bool>(
+                groupValue: controller.isMale,
+                onChanged: controller.setGender,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Radio<bool>(
+                            value: true,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('MALE'),
+                        ],
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: RadioListTile<bool>(
-                      title: const Text('FEMALE'),
-                      value: false,
-                      groupValue: bloc.isMale,
-                      onChanged: (value) => bloc.setGender(value!),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Radio<bool>(
+                            value: false,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text('FEMALE'),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
               // Medical Information
               TextField(
-                controller: bloc.bloodGroupController,
+                controller: controller.bloodGroupController,
                 decoration: const InputDecoration(
                   labelText: 'Blood Group (e.g., A+, B-, O+)',
                   border: OutlineInputBorder(),
@@ -165,7 +169,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               const SizedBox(height: 16),
 
               TextField(
-                controller: bloc.allergiesController,
+                controller: controller.allergiesController,
                 decoration: const InputDecoration(
                   labelText: 'Allergies',
                   border: OutlineInputBorder(),
@@ -175,7 +179,7 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
               const SizedBox(height: 16),
 
               TextField(
-                controller: bloc.chronicConditionsController,
+                controller: controller.chronicConditionsController,
                 decoration: const InputDecoration(
                   labelText: 'Chronic Conditions',
                   border: OutlineInputBorder(),
@@ -194,9 +198,9 @@ class AddPatientDialog extends Feature<AddPatientBloc> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: bloc.canSave
+                    onPressed: controller.canSave
                         ? () {
-                            bloc.savePatient();
+                            controller.savePatient();
                             Navigator.of(context).pop();
                           }
                         : null,

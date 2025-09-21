@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:patients/domain/api/user_repository.dart';
 import 'package:patients/domain/models/user.dart';
 import 'package:patients/utils/architecture.dart';
 
-class UserBloc extends Bloc {
+@injectable
+class UserBloc extends Bloc<UserPage> {
   late final UserRepository userRepository;
 
   @override
@@ -26,16 +28,13 @@ class UserPage extends Feature<UserBloc> {
   const UserPage({super.key});
 
   @override
-  UserBloc createBloc() => UserBloc();
-
-  @override
-  Widget build(BuildContext context, UserBloc bloc) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final duration = bloc.jobDuration;
+    final duration = controller.jobDuration;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(bloc.name),
+        title: Text(controller.name),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -62,12 +61,12 @@ class UserPage extends Feature<UserBloc> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
-                      initialValue: bloc.name,
+                      initialValue: controller.name,
                       decoration: const InputDecoration(
                         labelText: 'Name',
                         prefixIcon: Icon(Icons.person_outline),
                       ),
-                      onChanged: bloc.setName,
+                      onChanged: controller.setName,
                     ),
                   ],
                 ),
@@ -111,7 +110,8 @@ class UserPage extends Feature<UserBloc> {
                       child: Column(
                         children: [
                           Text(
-                            _formatDuration(duration, bloc.showDurationIn),
+                            _formatDuration(
+                                duration, controller.showDurationIn),
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.onPrimaryContainer,
@@ -133,7 +133,7 @@ class UserPage extends Feature<UserBloc> {
                     ListTile(
                       leading: const Icon(Icons.calendar_today),
                       title: const Text('Job Started On'),
-                      subtitle: Text(bloc.jobStartedOn.format),
+                      subtitle: Text(controller.jobStartedOn.format),
                       contentPadding: EdgeInsets.zero,
                     ),
 
@@ -141,9 +141,9 @@ class UserPage extends Feature<UserBloc> {
 
                     // Duration Format Toggle
                     OutlinedButton.icon(
-                      onPressed: bloc.toggleShowDurationIn,
+                      onPressed: controller.toggleShowDurationIn,
                       icon: const Icon(Icons.swap_horiz),
-                      label: Text('Show in ${bloc.showDurationIn.name}'),
+                      label: Text('Show in ${controller.showDurationIn.name}'),
                     ),
 
                     const SizedBox(height: 16),
@@ -155,13 +155,13 @@ class UserPage extends Feature<UserBloc> {
                         onPressed: () async {
                           final selected = await showDatePicker(
                             context: context,
-                            initialDate: bloc.jobStartedOn,
+                            initialDate: controller.jobStartedOn,
                             firstDate: DateTime(1950),
                             lastDate: DateTime.now(),
                           );
 
                           if (selected != null) {
-                            bloc.setJobStartedOn(selected);
+                            controller.setJobStartedOn(selected);
                           }
                         },
                         icon: const Icon(Icons.edit_calendar),

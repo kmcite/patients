@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:patients/domain/api/navigator.dart';
+import 'package:injectable/injectable.dart';
+import 'package:patients/domain/api/hospital_repository.dart';
 import 'package:patients/domain/api/settings_repository.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/add_patient_dialog.dart';
+import 'package:patients/ui/new_quick_patient.dart';
 import 'package:patients/ui/app_drawer.dart';
-import 'package:patients/ui/investigations_page.dart';
-import 'package:patients/ui/patients/patients_page.dart';
-import 'package:patients/ui/personal/user_page.dart';
-import 'package:patients/ui/settings_page.dart';
+import 'package:patients/ui/investigations.dart';
+import 'package:patients/ui/patients/patients.dart';
+import 'package:patients/ui/personal/user.dart';
+import 'package:patients/ui/settings.dart';
 import 'package:patients/utils/architecture.dart';
 
-class HomeBloc extends Bloc {
-  late final SettingsRepository settingsRepository;
-  late final PatientsRepository patientsRepository;
+@injectable
+class HomeBloc extends Bloc<HomeView> {
+  late final settingsRepository = watch<SettingsRepository>();
+  late final patientsRepository = watch<PatientsRepository>();
+  late final hospital = watch<HospitalRepository>();
 
   @override
   void initState() {
-    settingsRepository = watch<SettingsRepository>();
-    patientsRepository = watch<PatientsRepository>();
     FlutterNativeSplash.remove();
   }
 
@@ -37,19 +38,16 @@ class HomeBloc extends Bloc {
   }
 }
 
-class HomePage extends Feature<HomeBloc> {
-  const HomePage({super.key});
+class HomeView extends Feature<HomeBloc> {
+  const HomeView({super.key});
 
   @override
-  HomeBloc createBloc() => HomeBloc();
-
-  @override
-  Widget build(BuildContext context, HomeBloc bloc) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Patients Management'),
+        title: const Text('Patients'),
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () => navigator.to(const AppDrawer()),
@@ -60,9 +58,10 @@ class HomePage extends Feature<HomeBloc> {
             onPressed: () => navigator.to(const UserPage()),
           ),
           IconButton(
-            icon: Icon(bloc.dark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: bloc.toggleDark,
+            icon: Icon(controller.dark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: controller.toggleDark,
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
@@ -86,7 +85,7 @@ class HomePage extends Feature<HomeBloc> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          'Welcome to Patients Management',
+                          'Welcome..!',
                           style: theme.textTheme.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -95,7 +94,7 @@ class HomePage extends Feature<HomeBloc> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Emergency and Trauma Center',
+                      controller.hospital.name,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -111,22 +110,20 @@ class HomePage extends Feature<HomeBloc> {
             Row(
               children: [
                 Expanded(
-                  child: _buildStatCard(
-                    context,
-                    'Total Patients',
-                    '${bloc.patientsCount}',
-                    Icons.people,
-                    theme.colorScheme.primary,
+                  child: StatCard(
+                    title: 'Total Patients',
+                    value: '${controller.patientsCount}',
+                    icon: Icons.people,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
-                  child: _buildStatCard(
-                    context,
-                    'Today\'s Visits',
-                    '12', // TODO: Get actual count
-                    Icons.today,
-                    theme.colorScheme.secondary,
+                  child: StatCard(
+                    title: 'Today\'s Visits',
+                    value: '12',
+                    icon: Icons.today,
+                    color: theme.colorScheme.secondary,
                   ),
                 ),
               ],
@@ -151,40 +148,33 @@ class HomePage extends Feature<HomeBloc> {
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
               children: [
-                _buildActionCard(
-                  context,
-                  'Patients',
-                  Icons.people,
-                  theme.colorScheme.primary,
-                  () {
-                    navigator.to(const PatientsPage());
-                  },
-                ),
-                _buildActionCard(
-                  context,
-                  'Appointments',
-                  Icons.calendar_today,
-                  theme.colorScheme.secondary,
-                  () {
-                    // TODO: Navigate to appointments page
-                  },
-                ),
-                _buildActionCard(
-                  context,
-                  'Investigations',
-                  Icons.science,
-                  theme.colorScheme.tertiary,
-                  () {
+                ActionCard(
+                    title: 'Patients',
+                    icon: Icons.people,
+                    color: theme.colorScheme.primary,
+                    onTap: () {
+                      navigator.to(const PatientsView());
+                    }),
+                ActionCard(
+                    title: 'Appointments',
+                    icon: Icons.calendar_today,
+                    color: theme.colorScheme.secondary,
+                    onTap: () {
+                      // navigator.to(const AppointmentsPage());
+                    }),
+                ActionCard(
+                  title: 'Investigations',
+                  icon: Icons.science,
+                  color: theme.colorScheme.tertiary,
+                  onTap: () {
                     navigator.to(const InvestigationsPage());
                   },
                 ),
-                _buildActionCard(
-                  context,
-                  'Settings',
-                  Icons.settings,
-                  theme.colorScheme.outline,
-                  () => navigator.to(const SettingsPage()),
-                ),
+                ActionCard(
+                    title: 'Settings',
+                    icon: Icons.settings,
+                    color: theme.colorScheme.outline,
+                    onTap: () => navigator.to(const SettingsPage())),
               ],
             ),
           ],
@@ -192,21 +182,31 @@ class HomePage extends Feature<HomeBloc> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          await navigator.toDialog<Patient>(const AddPatientDialog());
+          await navigator.toDialog<Patient>(const NewQuickPatientView());
         },
         icon: const Icon(Icons.add),
         label: const Text('New Patient'),
       ),
     );
   }
+}
 
-  Widget _buildStatCard(
-    BuildContext context,
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
+class StatCard extends StatelessWidget {
+  const StatCard({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
@@ -240,14 +240,24 @@ class HomePage extends Feature<HomeBloc> {
       ),
     );
   }
+}
 
-  Widget _buildActionCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
+class ActionCard extends StatelessWidget {
+  const ActionCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
@@ -262,7 +272,12 @@ class HomePage extends Feature<HomeBloc> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: theme.colorScheme.primary.withValues(
+                    // red: theme.colorScheme.primary.red,
+                    // green: theme.colorScheme.primary.green,
+                    // blue: theme.colorScheme.primary.blue,
+                    alpha: 0.1,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(

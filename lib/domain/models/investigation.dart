@@ -1,4 +1,4 @@
-import 'package:patients/main.dart';
+import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class Investigation {

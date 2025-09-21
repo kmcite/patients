@@ -1,18 +1,15 @@
 import 'package:objectbox/objectbox.dart';
+import 'package:patients/utils/dependencies.dart';
 import 'architecture.dart';
 
 /// CRUD Repository - integrates ObjectBox with new architecture
 abstract class CrudRepository<T> extends Repository {
-  late final Store store;
-  late final Box<T> crud;
-  final Resource<List<T>> items = Resource<List<T>>();
-
-  @override
-  void init() {
-    store = get<Store>();
-    crud = store.box<T>();
+  CrudRepository() {
     loadAll();
   }
+  late final store = get<Store>();
+  late final crud = store.box<T>();
+  final items = Resource<List<T>>();
 
   /// Load all items from database
   Future<void> loadAll() async {
@@ -23,7 +20,7 @@ abstract class CrudRepository<T> extends Repository {
   }
 
   /// Get all items (sync)
-  Iterable<T> getAll() => crud.getAll();
+  Iterable<T> getAll() => items.data ?? [];
 
   /// Get single item by ID
   T? getById(int id) => crud.get(id);
@@ -50,54 +47,13 @@ abstract class CrudRepository<T> extends Repository {
   }
 
   /// Get count
-  int get length => crud.count();
+  int get length => items.data?.length ?? 0;
 
   /// Watch for changes (ObjectBox stream)
-  Stream<List<T>> watchChanges() {
+  Stream<List<T>> watch() {
     return crud
         .query()
         .watch(triggerImmediately: true)
         .map((query) => query.find());
   }
 }
-
-// /// Mixin for existing repositories that want CRUD functionality
-// mixin CRUD<T> on Repository {
-//   late final Store store;
-//   late final Box<T> crud;
-
-//   void initCrud() {
-//     store = get<Store>();
-//     crud = store.box<T>();
-//   }
-
-//   Iterable<T> getAll() => crud.getAll();
-//   T? getById(int id) => crud.get(id);
-
-//   void put(T entity) {
-//     crud.put(entity);
-//     notifyListeners();
-//   }
-
-//   void remove(T entity) {
-//     final id = (entity as dynamic).id;
-//     if (id != null) {
-//       crud.remove(id);
-//       notifyListeners();
-//     }
-//   }
-
-//   void removeAll() {
-//     crud.removeAll();
-//     notifyListeners();
-//   }
-
-//   int get length => crud.count();
-
-//   Stream<List<T>> watchChanges() {
-//     return crud
-//         .query()
-//         .watch(triggerImmediately: true)
-//         .map((query) => query.find());
-//   }
-// }

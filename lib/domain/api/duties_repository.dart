@@ -1,7 +1,9 @@
 import 'package:patients/domain/models/duty.dart';
 import 'package:patients/utils/crud.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class DutiesRepository extends CrudRepository<Duty> {
   // All CRUD functionality is inherited from CrudRepository
   // items Resource<List<Duty>> is available for UI binding

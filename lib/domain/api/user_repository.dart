@@ -1,6 +1,8 @@
 import 'package:patients/domain/models/user.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class UserRepository extends Repository {
   var user = User();
   var showDurationInToggler = Toggler(ShowDurationIn.values);

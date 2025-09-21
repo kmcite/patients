@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:patients/domain/api/authentication_repository.dart';
 import 'package:patients/domain/api/patients_repository.dart';
+import 'package:patients/ui/home.dart';
 import 'package:patients/utils/architecture.dart';
 
-class AuthenticationBloc extends Bloc {
-  late final AuthenticationRepository authRepo;
-  late final PatientsRepository patientsRepo;
+@injectable
+class AuthenticationBloc extends Bloc<AuthenticationView> {
+  late final authenticationRepository = watch<AuthenticationRepository>();
+  late final patientsRepository = watch<PatientsRepository>();
 
   int selectedIndex = 0;
-  final nameController = TextEditingController(text: 'Adn');
-  final emailController = TextEditingController(text: 'adn@gmail.com');
-  final passwordController = TextEditingController(text: '123456');
 
-  @override
-  void initState() {
-    authRepo = watch<AuthenticationRepository>();
-    patientsRepo = watch<PatientsRepository>();
+  String name = 'Adn';
+  String email = 'adn@gmail.com';
+  String password = '1234';
+  void onNameChanged(String name) {
+    this.name = name;
+    notifyListeners();
+  }
+
+  void onEmailChanged(String email) {
+    this.email = email;
+    notifyListeners();
+  }
+
+  void onPasswordChanged(String password) {
+    this.password = password;
+    notifyListeners();
   }
 
   void setIndex(int index) {
@@ -24,34 +36,26 @@ class AuthenticationBloc extends Bloc {
   }
 
   Future<void> login() async {
-    await authRepo.login(emailController.text, passwordController.text);
+    final result = await authenticationRepository.login(email, password);
+    if (result) {
+      navigator.to(HomeView());
+    }
   }
 
   Future<void> bypassLogin() async {
-    await authRepo.login('adn@gmail.com', '1234');
+    await authenticationRepository.login('adn@gmail.com', '1234');
   }
 
   bool get invalidCredentials {
-    return emailController.text.isEmpty || passwordController.text.isEmpty;
-  }
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
+    return email.isEmpty || password.isEmpty;
   }
 }
 
-class AuthenticationPage extends Feature<AuthenticationBloc> {
-  const AuthenticationPage({super.key});
+class AuthenticationView extends Feature<AuthenticationBloc> {
+  const AuthenticationView({super.key});
 
   @override
-  AuthenticationBloc createBloc() => AuthenticationBloc();
-
-  @override
-  Widget build(BuildContext context, AuthenticationBloc bloc) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Authentication'),
@@ -61,6 +65,7 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 8,
             children: [
               // Tab selector
               Card(
@@ -70,12 +75,12 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => bloc.setIndex(0),
+                          onPressed: () => controller.setIndex(0),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: bloc.selectedIndex == 0
+                            backgroundColor: controller.selectedIndex == 0
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.surface,
-                            foregroundColor: bloc.selectedIndex == 0
+                            foregroundColor: controller.selectedIndex == 0
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : Theme.of(context).colorScheme.onSurface,
                           ),
@@ -85,12 +90,12 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () => bloc.setIndex(1),
+                          onPressed: () => controller.setIndex(1),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: bloc.selectedIndex == 1
+                            backgroundColor: controller.selectedIndex == 1
                                 ? Theme.of(context).colorScheme.primary
                                 : Theme.of(context).colorScheme.surface,
-                            foregroundColor: bloc.selectedIndex == 1
+                            foregroundColor: controller.selectedIndex == 1
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : Theme.of(context).colorScheme.onSurface,
                           ),
@@ -101,7 +106,6 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
 
               // Form fields
               Card(
@@ -109,16 +113,18 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      TextField(
-                        controller: bloc.nameController,
+                      TextFormField(
+                        onChanged: controller.onNameChanged,
+                        initialValue: controller.name,
                         decoration: const InputDecoration(
                           labelText: 'Name',
                           border: OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: bloc.emailController,
+                      TextFormField(
+                        onChanged: controller.onEmailChanged,
+                        initialValue: controller.email,
                         decoration: const InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
@@ -126,8 +132,9 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: bloc.passwordController,
+                      TextFormField(
+                        onChanged: controller.onPasswordChanged,
+                        initialValue: controller.password,
                         decoration: const InputDecoration(
                           labelText: 'Password',
                           border: OutlineInputBorder(),
@@ -138,23 +145,16 @@ class AuthenticationPage extends Feature<AuthenticationBloc> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
 
               // Action buttons
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: bloc.invalidCredentials ? null : bloc.login,
-                  child: const Text('Login'),
-                ),
+              FilledButton(
+                onPressed:
+                    controller.invalidCredentials ? null : controller.login,
+                child: const Text('Login'),
               ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: bloc.bypassLogin,
-                  child: const Text('Bypass Login'),
-                ),
+              OutlinedButton(
+                onPressed: controller.bypassLogin,
+                child: const Text('Bypass Login'),
               ),
             ],
           ),

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:patients/domain/api/patients_repository.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/patients/patient_tile_2.dart';
+import 'package:patients/ui/patients/edit_patient.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
-class SearchBloc extends Bloc {
-  late final PatientsRepository patientsRepository;
+@injectable
+class SearchBloc extends Bloc<SearchPage> {
+  late final patientsRepository = watch<PatientsRepository>();
   final searchController = TextEditingController();
   List<Patient> searchResults = [];
 
   @override
   void initState() {
-    patientsRepository = watch<PatientsRepository>();
     searchController.addListener(_onSearchChanged);
   }
 
@@ -21,11 +22,13 @@ class SearchBloc extends Bloc {
       searchResults = [];
     } else {
       final allPatients = patientsRepository.items.data ?? [];
-      searchResults = allPatients.where((patient) {
-        return patient.name.toLowerCase().contains(query) ||
-            patient.email.toLowerCase().contains(query) ||
-            (patient.contact.target?.mnp.contains(query) == true);
-      }).toList();
+      searchResults = allPatients.where(
+        (patient) {
+          return patient.name.toLowerCase().contains(query) ||
+              patient.email.toLowerCase().contains(query) ||
+              (patient.contact.target?.mnp.contains(query) == true);
+        },
+      ).toList();
     }
     notifyListeners();
   }
@@ -41,10 +44,7 @@ class SearchPage extends Feature<SearchBloc> {
   const SearchPage({super.key});
 
   @override
-  SearchBloc createBloc() => SearchBloc();
-
-  @override
-  Widget build(BuildContext context, SearchBloc bloc) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search Patients'),
@@ -54,7 +54,7 @@ class SearchPage extends Feature<SearchBloc> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
-              controller: bloc.searchController,
+              controller: controller.searchController,
               decoration: const InputDecoration(
                 labelText: 'Search patients...',
                 hintText: 'Enter name, email, or phone',
@@ -64,19 +64,20 @@ class SearchPage extends Feature<SearchBloc> {
             ),
           ),
           Expanded(
-            child: bloc.searchResults.isEmpty
+            child: controller.searchResults.isEmpty
                 ? Center(
                     child: Text(
-                      bloc.searchController.text.isEmpty
+                      controller.searchController.text.isEmpty
                           ? 'Enter search terms to find patients'
                           : 'No patients found',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   )
                 : ListView.builder(
-                    itemCount: bloc.searchResults.length,
+                    itemCount: controller.searchResults.length,
                     itemBuilder: (context, index) {
-                      return PatientTile(patient: bloc.searchResults[index]);
+                      return EditPatientView(
+                          patient: controller.searchResults[index]);
                     },
                   ),
           ),

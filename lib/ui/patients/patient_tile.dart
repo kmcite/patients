@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:patients/domain/models/patient.dart';
-import 'package:patients/ui/patients/patient_page.dart';
+import 'package:patients/ui/patients/patient.dart';
+import 'package:patients/utils/architecture.dart';
 
 class PatientTile extends StatelessWidget {
   final Patient patient;
@@ -35,11 +36,7 @@ class PatientTile extends StatelessWidget {
         ),
         trailing: const Icon(Icons.arrow_forward_ios),
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => PatientPage(patient: patient),
-            ),
-          );
+          navigator.to(PatientPage(patient: patient));
         },
       ),
     );

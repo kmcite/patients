@@ -2,7 +2,9 @@ import 'package:patients/utils/architecture.dart';
 import 'package:patients/utils/crud.dart';
 import '../models/patient.dart';
 import '../models/patient_types.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class PatientTypesRepository extends CrudRepository<PatientType> {
   // All CRUD functionality is inherited from CrudRepository
   // items Resource<List<PatientType>> is available for UI binding
@@ -19,6 +21,7 @@ class PatientTypesRepository extends CrudRepository<PatientType> {
   Resource<List<PatientType>> get patientTypes => items;
 }
 
+@singleton
 class PatientsRepository extends CrudRepository<Patient> {
   // All CRUD functionality is inherited from CrudRepository
   // items Resource<List<Patient>> is available for UI binding

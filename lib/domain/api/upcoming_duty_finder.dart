@@ -1,7 +1,7 @@
 import 'package:patients/domain/models/duty.dart';
+import 'package:injectable/injectable.dart';
 
-final upcomingDutyFinder = UpcomingDutyFinder();
-
+@singleton
 class UpcomingDutyFinder {
   Duty? findNextRosterEntry(
     DateTime currentDateTime,

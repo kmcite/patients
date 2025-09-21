@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class SettingsRepository extends Repository {
   ThemeMode themeMode = ThemeMode.system;
-  String clinicName = 'Adn Opd';
 
   void setThemeMode(ThemeMode value) {
     themeMode = value;
@@ -22,11 +23,6 @@ class SettingsRepository extends Repository {
         themeMode = ThemeMode.light;
         break;
     }
-    notifyListeners();
-  }
-
-  void setClinicName(String value) {
-    clinicName = value;
     notifyListeners();
   }
 }

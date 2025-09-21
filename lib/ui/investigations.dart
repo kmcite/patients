@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:patients/domain/api/investigations.dart';
-import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/domain/models/investigation.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
-class InvestigationsPageBloc extends Bloc {
-  late final InvestigationsRepository investigationsRepository;
+@injectable
+class InvestigationsBloc extends Bloc<InvestigationsPage> {
+  late final InvestigationsRepository investigationsRepository = watch();
   bool isEditing = false;
 
-  @override
-  void initState() {
-    investigationsRepository = watch<InvestigationsRepository>();
-  }
-
-  List<Investigation> get investigations =>
-      investigationsRepository.investigations.hasData
-          ? investigationsRepository.investigations.data!
-          : [];
+  Resource<List<Investigation>> get investigations =>
+      investigationsRepository.items;
 
   void toggleEditing() {
     isEditing = !isEditing;
@@ -30,22 +24,19 @@ class InvestigationsPageBloc extends Bloc {
       ..price = 200.0
       ..category = 'General';
 
-    investigationsRepository.addInvestigation(investigation);
+    investigationsRepository.put(investigation);
   }
 
   void removeInvestigation(Investigation investigation) {
-    investigationsRepository.removeInvestigation(investigation);
+    investigationsRepository.remove(investigation);
   }
 }
 
-class InvestigationsPage extends Feature<InvestigationsPageBloc> {
+class InvestigationsPage extends Feature<InvestigationsBloc> {
   const InvestigationsPage({super.key});
 
   @override
-  InvestigationsPageBloc createBloc() => InvestigationsPageBloc();
-
-  @override
-  Widget build(BuildContext context, InvestigationsPageBloc bloc) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -57,13 +48,13 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
         ),
         actions: [
           IconButton(
-            icon: Icon(bloc.isEditing ? Icons.check : Icons.edit),
-            onPressed: bloc.toggleEditing,
+            icon: Icon(controller.isEditing ? Icons.check : Icons.edit),
+            onPressed: controller.toggleEditing,
           ),
         ],
       ),
-      body: bloc.investigationsRepository.investigations.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+      body: controller.investigations.when(
+        // loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, message) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -77,7 +68,7 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
               Text('Error loading investigations: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => bloc.investigationsRepository.loadAll(),
+                onPressed: () => controller.investigationsRepository.loadAll(),
                 child: const Text('Retry'),
               ),
             ],
@@ -108,7 +99,7 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: bloc.addInvestigation,
+                    onPressed: controller.addInvestigation,
                     icon: const Icon(Icons.add),
                     label: const Text('Add Investigation'),
                   ),
@@ -152,20 +143,22 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
                         ),
                     ],
                   ),
-                  trailing: bloc.isEditing
+                  trailing: controller.isEditing
                       ? IconButton(
                           icon: Icon(
                             Icons.delete,
                             color: theme.colorScheme.error,
                           ),
                           onPressed: () =>
-                              bloc.removeInvestigation(investigation),
+                              controller.removeInvestigation(investigation),
                         )
                       : const Icon(Icons.chevron_right),
-                  onTap: bloc.isEditing
+                  onTap: controller.isEditing
                       ? null
                       : () {
-                          // TODO: Navigate to investigation details
+                          navigator.to(
+                            InvestigationDetails(investigation: investigation),
+                          );
                         },
                 ),
               );
@@ -185,7 +178,7 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
               const Text('No investigations found'),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: bloc.addInvestigation,
+                onPressed: controller.addInvestigation,
                 icon: const Icon(Icons.add),
                 label: const Text('Add Investigation'),
               ),
@@ -194,8 +187,22 @@ class InvestigationsPage extends Feature<InvestigationsPageBloc> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: bloc.addInvestigation,
+        onPressed: controller.addInvestigation,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class InvestigationDetails extends StatelessWidget {
+  final Investigation investigation;
+  const InvestigationDetails({super.key, required this.investigation});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(investigation.name),
       ),
     );
   }

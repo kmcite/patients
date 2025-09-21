@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:patients/domain/api/duties_repository.dart';
 import 'package:patients/domain/api/upcoming_duty_finder.dart';
 import 'package:patients/domain/models/duty.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:patients/utils/dependencies.dart';
 
-class UpcomingDutiesBloc extends Bloc {
-  late final DutiesRepository dutiesRepository;
-  late final UpcomingDutyFinder upcomingDutyFinder;
-
-  @override
-  void initState() {
-    dutiesRepository = watch<DutiesRepository>();
-    upcomingDutyFinder = get<UpcomingDutyFinder>();
-  }
+@injectable
+class UpcomingDutiesBloc extends Bloc<UpcomingDuties> {
+  late final DutiesRepository dutiesRepository = watch();
+  late final UpcomingDutyFinder upcomingDutyFinder = get();
 
   List<Duty> get duties =>
       dutiesRepository.duties.hasData ? dutiesRepository.duties.data! : [];
@@ -27,14 +24,11 @@ class UpcomingDuties extends Feature<UpcomingDutiesBloc> {
   const UpcomingDuties({super.key});
 
   @override
-  UpcomingDutiesBloc createBloc() => UpcomingDutiesBloc();
-
-  @override
-  Widget build(BuildContext context, UpcomingDutiesBloc bloc) {
+  Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (bloc.duties.isEmpty)
+        if (controller.duties.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
@@ -51,12 +45,12 @@ class UpcomingDuties extends Feature<UpcomingDutiesBloc> {
             children: [
               _buildRow(
                 '  DAY  ',
-                bloc.upcomingDuty?.dayType().name.toUpperCase() ?? '-',
+                controller.upcomingDuty?.dayType().name.toUpperCase() ?? '-',
                 context,
               ),
               _buildRow(
                 '  SHIFT  ',
-                bloc.upcomingDuty?.shiftType().name.toUpperCase() ?? '-',
+                controller.upcomingDuty?.shiftType().name.toUpperCase() ?? '-',
                 context,
               ),
             ],

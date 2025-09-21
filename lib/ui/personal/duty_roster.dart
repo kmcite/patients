@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
+import 'package:patients/domain/api/calculate_total_duty_hours.dart';
 import 'package:patients/domain/api/duties_repository.dart';
-import 'package:patients/domain/api/navigator.dart';
 import 'package:patients/utils/architecture.dart';
 import 'roster_table.dart';
 
-class DutyRosterBloc extends Bloc {
-  late final DutiesRepository dutiesRepository;
-
-  @override
-  void initState() {
-    dutiesRepository = watch<DutiesRepository>();
-  }
+@injectable
+class DutyRosterBloc extends Bloc<DutyRoster> {
+  late final DutiesRepository dutiesRepository = watch();
 
   int get totalHours {
-    // TODO: Implement duty hours calculation
-    return 40; // Placeholder
+    final duration = caculateTotalDutyHours(dutiesRepository.getAll());
+    return duration.inHours;
   }
 }
 
@@ -22,10 +19,7 @@ class DutyRoster extends Feature<DutyRosterBloc> {
   const DutyRoster({super.key});
 
   @override
-  DutyRosterBloc createBloc() => DutyRosterBloc();
-
-  @override
-  Widget build(BuildContext context, DutyRosterBloc bloc) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -59,7 +53,7 @@ class DutyRoster extends Feature<DutyRosterBloc> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "${bloc.totalHours}",
+                    "${controller.totalHours}",
                     style: theme.textTheme.displayMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,

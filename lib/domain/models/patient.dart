@@ -1,5 +1,5 @@
+import 'package:objectbox/objectbox.dart';
 import 'package:patients/domain/models/investigation.dart';
-import 'package:patients/main.dart';
 
 import 'patient_types.dart';
 import 'picture.dart';

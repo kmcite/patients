@@ -1,17 +1,18 @@
 import 'package:patients/domain/models/picture.dart';
 import 'package:patients/utils/architecture.dart';
+import 'package:injectable/injectable.dart';
 
+@singleton
 class PicturesRepository extends Repository {
   final Resource<List<Picture>> pictures = Resource<List<Picture>>();
 
-  @override
   void init() {
     loadPictures();
   }
 
   Future<void> loadPictures() async {
     await pictures.execute(() async {
-      // TODO: Load from database or API
+      // TO DO: Load from database or API
       return <Picture>[];
     });
     notifyListeners();

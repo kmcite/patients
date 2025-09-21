@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 import 'package:patients/domain/api/duties_repository.dart';
 import 'package:patients/domain/models/duty.dart';
 import 'package:patients/utils/architecture.dart';
 import 'table_cell_builder.dart';
 
-class RosterTableBloc extends Bloc {
+@injectable
+class RosterTableBloc extends Bloc<RosterTable> {
   late final DutiesRepository dutiesRepository;
 
   @override
@@ -41,10 +43,7 @@ class RosterTable extends Feature<RosterTableBloc> {
   const RosterTable({super.key});
 
   @override
-  RosterTableBloc createBloc() => RosterTableBloc();
-
-  @override
-  Widget build(BuildContext context, RosterTableBloc bloc) {
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Table(
@@ -75,8 +74,8 @@ class RosterTable extends Feature<RosterTableBloc> {
                 ...ShiftType.values.map(
                   (shift) => TableCellBuilder(
                     child: Switch(
-                      value: bloc.isDutyScheduled(day, shift),
-                      onChanged: (value) => bloc.toggleDuty(day, shift),
+                      value: controller.isDutyScheduled(day, shift),
+                      onChanged: (value) => controller.toggleDuty(day, shift),
                     ),
                   ),
                 ),
