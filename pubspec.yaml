@@ -23,6 +23,8 @@ dependencies:
   navigation_builder: ^0.0.4
   injectable: ^2.5.1
   hive_flutter: ^1.1.0
+  get_it:
+  meta: ^1.15.0
 dev_dependencies:
   objectbox_generator: ^4.3.0
   injectable_generator: ^2.8.1
