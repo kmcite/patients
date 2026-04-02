@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -58,39 +58,35 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final dependencies = _$Dependencies();
-    gh.factory<_i214.ApplicationBloc>(() => _i214.ApplicationBloc());
-    gh.factory<_i993.AppointmentsBloc>(() => _i993.AppointmentsBloc());
     gh.factory<_i130.AppDrawerBloc>(() => _i130.AppDrawerBloc());
+    gh.factory<_i993.AppointmentsBloc>(() => _i993.AppointmentsBloc());
     gh.factory<_i418.AuthenticationBloc>(() => _i418.AuthenticationBloc());
     gh.factory<_i952.HomeBloc>(() => _i952.HomeBloc());
     gh.factory<_i674.ImageriesBloc>(() => _i674.ImageriesBloc());
     gh.factory<_i127.InvestigationsBloc>(() => _i127.InvestigationsBloc());
     gh.factory<_i265.NewQuickPatientBloc>(() => _i265.NewQuickPatientBloc());
+    gh.factory<_i899.EditPatientBloc>(() => _i899.EditPatientBloc());
+    gh.factory<_i727.PatientNewBloc>(() => _i727.PatientNewBloc());
+    gh.factory<_i296.VisitBloc>(() => _i296.VisitBloc());
+    gh.factory<_i691.VisitsBloc>(() => _i691.VisitsBloc());
+    gh.factory<_i853.PatientTypesBloc>(() => _i853.PatientTypesBloc());
     gh.factory<_i465.EditPatientBloc>(() => _i465.EditPatientBloc());
     gh.factory<_i561.NewPatientBloc>(() => _i561.NewPatientBloc());
     gh.factory<_i294.PatientsBloc>(() => _i294.PatientsBloc());
-    gh.factory<_i727.PatientNewBloc>(() => _i727.PatientNewBloc());
-    gh.factory<_i296.VisitBloc>(() => _i296.VisitBloc());
-    gh.factory<_i853.PatientTypesBloc>(() => _i853.PatientTypesBloc());
     gh.factory<_i359.DutyRosterBloc>(() => _i359.DutyRosterBloc());
     gh.factory<_i1014.RosterTableBloc>(() => _i1014.RosterTableBloc());
     gh.factory<_i1069.UpcomingDutiesBloc>(() => _i1069.UpcomingDutiesBloc());
     gh.factory<_i830.UserBloc>(() => _i830.UserBloc());
     gh.factory<_i385.SearchBloc>(() => _i385.SearchBloc());
     gh.factory<_i738.SettingsBloc>(() => _i738.SettingsBloc());
-    gh.factory<_i899.EditPatientBloc>(() => _i899.EditPatientBloc());
-    gh.factory<_i691.VisitsBloc>(() => _i691.VisitsBloc());
+    gh.factory<_i214.ThemeModeBloc>(() => _i214.ThemeModeBloc());
     await gh.factoryAsync<_i655.PackageInfo>(
       () => dependencies.appInfo,
       preResolve: true,
     );
-    // await gh.factoryAsync<_i179.Store>(
-    //   () => dependencies.store,
-    //   preResolve: true,
-    // );
-    await gh.singletonAsync<_i179.Store>(
+    await gh.factoryAsync<_i179.Store>(
       () => dependencies.store,
-      dispose: (i) => i.close(),
+      preResolve: true,
     );
     await gh.factoryAsync<_i986.Box<dynamic>>(
       () => dependencies.box,
@@ -107,7 +103,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.singleton<_i903.UpcomingDutyFinder>(() => _i903.UpcomingDutyFinder());
     gh.singleton<_i640.UserRepository>(() => _i640.UserRepository());
-    print('hot-reload');
     return this;
   }
 }

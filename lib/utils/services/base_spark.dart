@@ -51,12 +51,12 @@ abstract class BaseSpark<T> implements Spark<T> {
 
   Future<void> _loadAndWatch() async {
     if (_persistence == null) return;
-    
+
     _emit(AsyncState.loading());
     try {
-      final raw = await _persistence!.storage.read(_persistence!.key);
+      final raw = await _persistence.storage.read(_persistence.key);
       if (raw != null) {
-        final decoded = _persistence!.serializer.decode(raw);
+        final decoded = _persistence.serializer.decode(raw);
         _emit(AsyncState.data(decoded));
       } else {
         // If no persisted data, try to get initial value from subclass
@@ -68,11 +68,11 @@ abstract class BaseSpark<T> implements Spark<T> {
     } catch (e) {
       _emit(AsyncState.error(e));
     }
-    
-    _watchSub = _persistence!.storage.watch(_persistence!.key).listen((raw) {
+
+    _watchSub = _persistence.storage.watch(_persistence.key).listen((raw) {
       if (raw != null) {
         try {
-          final obj = _persistence!.serializer.decode(raw);
+          final obj = _persistence.serializer.decode(raw);
           _emit(AsyncState.data(obj));
         } catch (e) {
           _emit(AsyncState.error(e));
@@ -118,15 +118,15 @@ abstract class BaseSpark<T> implements Spark<T> {
   Future<void> update(T newValue) async {
     _emit(AsyncState.data(newValue));
     if (_persistence != null) {
-      await _persistence!.storage
-          .save(_persistence!.key, _persistence!.serializer.encode(newValue));
+      await _persistence.storage
+          .save(_persistence.key, _persistence.serializer.encode(newValue));
     }
   }
 
   @override
   Future<void> delete() async {
     if (_persistence != null) {
-      await _persistence!.storage.delete(_persistence!.key);
+      await _persistence.storage.delete(_persistence.key);
     }
   }
 
